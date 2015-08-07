@@ -1,2 +1,2 @@
 # ShopDown.js
-Converts markdown to a product page
+Converts HTML to a Simple product object.

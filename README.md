@@ -7,4 +7,4 @@ Converts HTML to a Simple product object.
  - Multiple prices shown, like a sale.
 - product discription :+1:
 - product link :+1:
-- product images
+- product images :+1:

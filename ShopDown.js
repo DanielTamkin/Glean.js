@@ -2,7 +2,7 @@
 	ShopDown testing[Alpha 1]- by Danieltamkin:
 
 	Main Plugin in development(Compiler),
-	Copiling html to a product object.
+	Compiling html to a product object.
 
 */
 $.fn.ShopDown = function($data) {
@@ -74,7 +74,7 @@ $.fn.ShopDown = function($data) {
 	  $.each(data,function(key,value){
 	    Sift = content.find(value);
 	    if(Sift.length < 1){
-	      // continue to find the proper value, this one doesnt exist.
+	      // continue to find the proper value, this one doesn't exist.
 	    }
 	    else{
 	      SiftedTo = value;

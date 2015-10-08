@@ -5,15 +5,16 @@
 	Compiling html to a product object.
 
 */
-$.fn.ShopDown = function($data) {
+$.fn.ShopDown = function(data) {
 	$this = $(this);
-	datacheck($data);
+	$data = datacheck(data);
 	/*data*/
 	function datacheck(data){
-	  $data = datascrub(data);
+	  return datascrub(data);
 	}
 	function datatemplate(){
-	  return data = {
+	  return data.settings = {
+			Stiffen: true,
 	    content: $this,
 	    sanitize: true,
 			cull: true,
@@ -51,8 +52,8 @@ $.fn.ShopDown = function($data) {
 	function htmlGet(){
 		if(window.htmlGot !== true){
 			htmlCull();// removes images from the Dom.
-			html = $($data.content).html();
-			$data.html = html;
+			html = $($data.settings.content).html();
+			// $data.html.html = html Work on this on a later date.
 			window.html 		= html;
 			window.htmlGot  = true;// so not to look for html again.
 	  	return html;
@@ -70,7 +71,7 @@ $.fn.ShopDown = function($data) {
 	    h5: 'h5#'+id,
 	    h6: 'h6#'+id
 	  }
-	  var	content		= $($data.content),
+	  var	content		= $($data.settings.content),
 	      SiftedTo 	= null;
 	  $.each(data,function(key,value){
 	    Sift = content.find(value);
@@ -89,7 +90,7 @@ $.fn.ShopDown = function($data) {
 			return htmlImages();
 		}
 		else{
-			var	content			= $($data.content),
+			var	content			= $($data.settings.content),
 		      multiple 		= content.find(htmlSiftTo(id)).get();
 		  if(multiple.length < 1){
 		    console.warn("Error, We're missing the tag "+id+"");
@@ -107,8 +108,8 @@ $.fn.ShopDown = function($data) {
 		}
 	}
 	function htmlCull(){
-	  if($data.cull == true){
-	    var	content				= $($data.content),
+	  if($data.settings.cull == true){
+	    var	content				= $($data.settings.content),
 					htmlOriginal 	= content.html();
 			content.find("img").addClass("remove");
 			content.append("<div id=\"htmlOriginal\">"+htmlOriginal+"</div>");
@@ -116,7 +117,7 @@ $.fn.ShopDown = function($data) {
 	  }
 	}
 	function htmlImages(){
-		var html 			= $($data.content).find("#htmlOriginal"),
+		var html 			= $($data.settings.content).find("#htmlOriginal"),
 				images 		= html.find("img"),
 				multiples = [];
 		$.each(images,function(key,value){
@@ -141,25 +142,25 @@ $.fn.ShopDown = function($data) {
 	    link:	  htmlFind("productlink"),
 			description: htmlFind("productdescription")
 	  }
-		if($data.images == true){
+		if($data.settings.images == true){
 			product.images = htmlFind("productimages");
 		}
 	  console.log(product);
 	  console.log("ShopDown ran Sucessfully!");
-	  $data.product = product;
+	  $data.settings.product = product;
 	}
 	function appSanitize(){
-	  if($data.sanitize == true){
-	    $($data.content).html("");
+	  if($data.settings.sanitize == true){
+	    $($data.settings.content).html("");
 	  }
 	}
 	function appOutput(data){
 		var output = null;
 		if(data == undefined){
-			output = $data.html;
+			output = $data;
 		}
 		else{
-			$.each($data.product,function(key,value){
+			$.each($data.settings.product,function(key,value){
 				if(key == data){
 					output = value;
 					return false;//break this loop!

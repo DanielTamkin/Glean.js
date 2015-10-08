@@ -2,14 +2,8 @@
 <html>
 <head>
   <title>showup.js - a caption compiler // by Daniel Tamkin</title>
-  <link rel="stylesheet" type="text/css" href="assets/fonts/fonts.css"/>
-  <link rel="stylesheet" type="text/css" href="assets/css/reset.css"/>
-  <link rel="stylesheet" type="text/css" href="assets/css/style.css"/>
-  <script type="text/javascript" src="assets/js/jQuery.js"></script>
-  <script type="text/javascript" src="assets/js/jQuery.fittext.js"></script>
-  <script type="text/javascript" src="assets/js/centerThis.js"></script>
-  <script type="text/javascript" src="assets/js/shimThis.js"></script>
-  <script type="text/javascript" src="showup.js"></script>
+  <script type="text/javascript" src="jQuery.js"></script>
+  <script type="text/javascript" src="ShopDown.js"></script>
 </head>
 <body>
   <section class="post-content">
@@ -26,7 +20,9 @@
     <p>www.redbubbble.com/danieltamkin/some-post  </p>
   </section>
   <script>
-    $("section.post-content").;
+    $content = $("section.post-content").ShopDown();
+
+    console.log($content.output());
   </script>
 </body>
 </html>

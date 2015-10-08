@@ -17,7 +17,7 @@ $.fn.ShopDown = function($data) {
 	    content: $this,
 	    sanitize: true,
 			cull: true,
-			images: true
+			images: true,
 			compile: true
 	  }
 	}
@@ -144,7 +144,7 @@ $.fn.ShopDown = function($data) {
 			product.images = htmlFind("productimages");
 		}
 	  console.log(product);
-	  console.log("ShopDown ran Sucessfully:");
+	  console.log("ShopDown ran Sucessfully!");
 	  $data.product = product;
 	}
 	function appSanitize(){
@@ -164,8 +164,8 @@ $.fn.ShopDown = function($data) {
 					return false;//break this loop!
 				}
 			});
-			return output;
 		}
+		return output;
 	}
 	function app(){
 	  window.htmlGot = false;// yes your allowed to grab HTML!

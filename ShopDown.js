@@ -52,6 +52,7 @@ $.fn.ShopDown = function($data) {
 		if(window.htmlGot !== true){
 			htmlCull();// removes images from the Dom.
 			html = $($data.content).html();
+			$data.html = html;
 			window.html 		= html;
 			window.htmlGot  = true;// so not to look for html again.
 	  	return html;
@@ -155,7 +156,7 @@ $.fn.ShopDown = function($data) {
 	function appOutput(data){
 		var output = null;
 		if(data == undefined){
-			output = $data.product;
+			output = $data.html;
 		}
 		else{
 			$.each($data.product,function(key,value){

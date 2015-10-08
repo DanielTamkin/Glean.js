@@ -1,12 +1,14 @@
 <!doctype html>
 <html>
 <head>
-  <title>showup.js - a caption compiler // by Daniel Tamkin</title>
+  <title>ShopDown</title>
   <script type="text/javascript" src="jQuery.js"></script>
   <script type="text/javascript" src="ShopDown.js"></script>
 </head>
 <body>
   <section class="post-content">
+    This is some random content that i just want to show anyways, I
+    forget the method name i called this, maybe Cull? who knows.
     <h1 id="productname">product name</h1>
     <p>Github Shirt  </p>
     <h1 id="productdescription">product description</h1>
@@ -20,9 +22,13 @@
     <p>www.redbubbble.com/danieltamkin/some-post  </p>
   </section>
   <script>
-    $content = $("section.post-content").ShopDown();
+    $ShopDown = $("section.post-content").ShopDown({
+      sanitize: false
+    });
 
-    console.log($content.output());
+    console.log("output()--");
+    console.log($ShopDown.output());
+    console.log("----------");
   </script>
 </body>
 </html>

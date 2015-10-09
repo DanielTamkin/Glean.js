@@ -1,8 +1,9 @@
 /*
-	ShopDown testing[Alpha 1]- by Danieltamkin:
+	ShopDown testing[Development - Stable]- by Danieltamkin:
 
 	Main Plugin in development(Compiler),
 	Compiling html to a product object.
+	(May morph into generic data compiler)
 
 */
 $.fn.ShopDown = function(data) {

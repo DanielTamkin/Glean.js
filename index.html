@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>ShopDown</title>
+  <meta charset="utf-8">
   <script type="text/javascript" src="jQuery.js"></script>
   <script type="text/javascript" src="ShopDown.js"></script>
 </head>
@@ -16,14 +17,12 @@
     <img src="/content/images/2015/08/071515-NEF-441.jpg" alt=""></p>
     <h1 id="productprice">product price:</h1>
     <p>16  </p>
-    <h1 id="productprice">product price:</h1>
-    <p>20  </p>
     <h1 id="productlink">product link</h1>
     <p>www.redbubbble.com/danieltamkin/some-post  </p>
   </section>
   <script>
     $ShopDown = $("section.post-content").ShopDown({
-      sanitize: true
+      leftovers: true
     });
 
     console.log("output()--");

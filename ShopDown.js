@@ -174,6 +174,7 @@ $.fn.ShopDown = function(data) {
 		    price:  htmlFind("productprice"),
 		    link:	  htmlFind("productlink"),
 				description: htmlFind("productdescription")
+				test:
 		  }
 			if($data.settings.images == true){
 				product.images = htmlFind("productimages");

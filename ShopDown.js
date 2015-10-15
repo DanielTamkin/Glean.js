@@ -26,7 +26,7 @@ $.fn.ShopDown = function(data) {
 	}
 	function datascrub(data){
 	  template = datatemplate();
-		if(data == undefined || data.length < 1){
+		if(data == undefined || $.isEmptyObject(data) == true){
 			data = template;
 		}
 		else{
@@ -156,15 +156,14 @@ $.fn.ShopDown = function(data) {
 			*/
 			$($data.settings.content).find("#shopdown-htmlOriginal").hide();
 		  if($data.settings.sanitize == true){
+
 				if($data.settings.leftovers == true){
+
 					htmlLeftOvers();
 				}
 				else{
-		    	$($data.settings.content).empty("");
+					$($data.settings.content).empty("");
 				}
-			}
-			if($data.settings.leftovers == true){
-				console.log("leftovers active");
 			}
 		}
 		function htmlTest(id){
@@ -201,9 +200,8 @@ $.fn.ShopDown = function(data) {
 		    name:   htmlFind("productname"),
 		    price:  htmlFind("productprice"),
 		    link:	  htmlFind("productlink"),
-				description: htmlFind("productdescription"),
-				test: htmlFind("somelink")
-		  }
+				description: htmlFind("productdescription")
+			}
 			if($data.settings.images == true){
 				product.images = htmlFind("productimages");
 			}
@@ -214,7 +212,7 @@ $.fn.ShopDown = function(data) {
 		function appOutput(data){
 			var output = null;
 			if(data == undefined){
-				output = $data.settings.content;
+				output = $data.product;
 			}
 			else{
 				$.each($data.product,function(key,value){

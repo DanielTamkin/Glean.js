@@ -55,24 +55,33 @@ $.fn.Glean = function(data) {
 		return data;
 	}
 /*> syntax*/
-	function syntaxGather(){}
+	function syntaxGather(){
+
+	}
 	function syntaxApprove(){}
 /*> html*/
 	function html(){
+		console.log($data.html.get);
+		var html = null;
 		if($data.html.get != true){
-			var html = $($data.settings.content).html();
+			$data.html.taken 	= $($data.settings.content).html();
+			$data.html.get 		= true;
 		}
+		else{
+			html = $data.html.taken;
+		}
+		return html;
 	}
 	function htmlGet(){}
 	function htmlSiftTo(id){
-		data = {
+		var data = {
 			h1: 'h1#'+id,
 			h2: 'h2#'+id,
 			h3: 'h3#'+id,
 			h4: 'h4#'+id,
 			h5: 'h5#'+id,
 			h6: 'h6#'+id
-		}
+		};
 		var	content		= html(),
 				SiftedTo 	= null;
 		$.each(data,function(key,value){
@@ -100,7 +109,7 @@ $.fn.Glean = function(data) {
 		appCalculation();
 	}
 	function appCalculation(){
-
+		
 	}
 	function appGet(){
 		return $data.settings;

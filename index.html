@@ -4,7 +4,7 @@
   <title>ShopDown</title>
   <meta charset="utf-8">
   <script type="text/javascript" src="jQuery.js"></script>
-  <script type="text/javascript" src="ShopDown.js"></script>
+  <script type="text/javascript" src="Glean.js"></script>
 </head>
 <body>
   <section class="post-content">
@@ -22,10 +22,8 @@
     <p>http://www.danieltamkin.com</p>
   </section>
   <script>
-    $ShopDown = $("section.post-content").ShopDown();
-    console.log("htmlTest()--");
-    console.log($ShopDown.output());
-    console.log("----------");
+    var Glean = $("section.post-content").Glean();
+    console.log(Glean.get());
   </script>
 </body>
 </html>

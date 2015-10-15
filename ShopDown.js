@@ -168,32 +168,32 @@ $.fn.ShopDown = function(data) {
 			}
 		}
 		function htmlTest(id){
-			console.log("id test= "+id);
-			if(id == undefined){
-				return undefined;
-			}
-			else{
-				console.log("true");
-				var	content			= $($data.settings.content),
-			      multiple 		= content.find(htmlSiftTo(id)).get();
-				console.log(multiple);
-				if(multiple.length < 1){
-			    console.warn("Error, We're missing the tag "+id+"");
-			  }
-			  else if(multiple.length > 1){
-					return "AO1";
-					// work on this in a later date.
-			  }
-			  else{
-			    var html 				= htmlGet(),
-			        element 		= content.find("#"+id),
-			        data 				= element.next("p").html();
-					/*resets*/
-					content.find("#"+id).attr('id', 'shopdown-remove');
-					element.next("p").addClass("shopdown-remove");
-			    return data.trim();
-			  }
-			}
+			// console.log("id test= "+id);
+			// if(id == undefined){
+			// 	return undefined;
+			// }
+			// else{
+			// 	console.log("true");
+			// 	var	content			= $($data.settings.content),
+			//       multiple 		= content.find(htmlSiftTo(id)).get();
+			// 	console.log(multiple);
+			// 	if(multiple.length < 1){
+			//     console.warn("Error, We're missing the tag "+id+"");
+			//   }
+			//   else if(multiple.length > 1){
+			// 		return "AO1";
+			// 		// work on this in a later date.
+			//   }
+			//   else{
+			//     var html 				= htmlGet(),
+			//         element 		= content.find("#"+id),
+			//         data 				= element.next("p").html();
+			// 		/*resets*/
+			// 		content.find("#"+id).attr('id', 'shopdown-remove');
+			// 		element.next("p").addClass("shopdown-remove");
+			//     return data.trim();
+			//   }
+			// }
 		}
 	/*app*/
 		function appCalculation(){
@@ -202,7 +202,7 @@ $.fn.ShopDown = function(data) {
 		    price:  htmlFind("productprice"),
 		    link:	  htmlFind("productlink"),
 				description: htmlFind("productdescription"),
-				test: htmlTest("somelink")
+				test: htmlFind("somelink")
 		  }
 			if($data.settings.images == true){
 				product.images = htmlFind("productimages");

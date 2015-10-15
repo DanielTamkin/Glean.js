@@ -13,7 +13,7 @@ $.fn.Glean = function(data) {
 	$data = [];
 	$data.settings = datacheck(data);
 	$data.html = {
-		sanitizeTo: $data.settings.sanitizeTo,
+		cullTo: $data.settings.cullTo,
 		get: false,
 		taken: null
 	}
@@ -24,8 +24,8 @@ $.fn.Glean = function(data) {
 	function datatemplate(){
 	  return {
 	    content: $this,
-	    sanitize: true,
-			sanitizeTo: "#glean-sanitized"
+	    cull: true,
+			cullTo: "#glean-culld"
 		}
 	}
 	function datascrub(data){
@@ -56,15 +56,22 @@ $.fn.Glean = function(data) {
 	}
 /*> syntax*/
 	function syntaxGather(){
-
+		var html = htmlGet();
+		// $("h1, h2, h3, h4, h5, h6").addClass("glean-possible");
+		// $('.glean-possible').each(function(i, obj) {
+    //
+		// });
 	}
 	function syntaxApprove(){}
 /*> html*/
-	function html(){
-		console.log($data.html.get);
+	function htmlGet(){
+		/*
+		 Checks to see if the get is true or not,
+		 if its false then we read the html.
+		*/
 		var html = null;
 		if($data.html.get != true){
-			$data.html.taken 	= $($data.settings.content).html();
+			$data.html.taken 	= $($data.settings.content).htmlGet();
 			$data.html.get 		= true;
 		}
 		else{
@@ -82,7 +89,7 @@ $.fn.Glean = function(data) {
 			h5: 'h5#'+id,
 			h6: 'h6#'+id
 		};
-		var	content		= html(),
+		var	content		= htmlGet(),
 				SiftedTo 	= null;
 		$.each(data,function(key,value){
 			Sift = content.find(value);
@@ -96,12 +103,13 @@ $.fn.Glean = function(data) {
 		});
 		return SiftedTo;
 	}
-	function htmlSanitize(){
-		if($data.settings.sanitize != true){
+	function htmlCull(){
+		if($data.settings.cull != true){
 			return null;// dont do anything.
 		}
 		else{
-
+			syntaxGather();
+			var html = htmlGet();
 		}
 	}
 /*> app*/
@@ -109,7 +117,7 @@ $.fn.Glean = function(data) {
 		appCalculation();
 	}
 	function appCalculation(){
-		
+		htmlCull();
 	}
 	function appGet(){
 		return $data.settings;

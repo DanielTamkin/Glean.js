@@ -4,7 +4,12 @@
 	Main Plugin in development(Compiler),
 	Compiling html to a product object.
 	(May morph into generic data compiler)
-
+	proposed use.
+	var Glean 	= $("thiselement.section").Glean(),
+			link 		= Glean.get("link");
+	console.log(link);
+	----
+	output: http://danieltamkin.com
 */
 $.fn.ShopDown = function(data) {
 	$this = $(this);

@@ -57,7 +57,7 @@ $.fn.Glean = function(data) {
 /*> syntax*/
 	function syntaxGather(){
 		var html = htmlGet();
-		// $("h1, h2, h3, h4, h5, h6").addClass("glean-possible");
+		$("h1, h2, h3, h4, h5, h6").addClass("glean-possible");
 		// $('.glean-possible').each(function(i, obj) {
     //
 		// });
@@ -65,22 +65,22 @@ $.fn.Glean = function(data) {
 	}
 	function syntaxApprove(){}
 /*> html*/
+	/*
+	 Checks to see if the get is true or not,
+	 if its false then we read the html.
+	*/
 	function htmlGet(){
-		/*
-		 Checks to see if the get is true or not,
-		 if its false then we read the html.
-		*/
-		var html = null;
+		var html = "1";
 		if($data.html.get != true){
-			$data.html.taken 	= $($data.settings.content).htmlGet();
+			$data.html.taken 	= $($data.settings.content).html();
 			$data.html.get 		= true;
+			html = $data.html.taken;
 		}
 		else{
 			html = $data.html.taken;
 		}
 		return html;
 	}
-	function htmlGet(){}
 	function htmlSiftTo(id){
 		var data = {
 			h1: 'h1#'+id,
@@ -121,7 +121,7 @@ $.fn.Glean = function(data) {
 		htmlCull();
 	}
 	function appGet(){
-		return $data.settings;
+		return $data.html;
 	}
 /*> objective functions / Runnables*/
 	app();

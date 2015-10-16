@@ -25,7 +25,7 @@ $.fn.Glean = function(data) {
 	  return {
 	    content: $this,
 	    cull: true,
-			cullTo: "#glean-culld"
+			cullTo: "#glean-cull"
 		}
 	}
 	function datascrub(data){
@@ -61,6 +61,7 @@ $.fn.Glean = function(data) {
 		// $('.glean-possible').each(function(i, obj) {
     //
 		// });
+		console.log("syntaxGather() = "+html);
 	}
 	function syntaxApprove(){}
 /*> html*/

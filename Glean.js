@@ -61,10 +61,11 @@ $.fn.Glean = function(data) {
 /*> syntax*/
 	function syntaxGather(){
 		var possible 	= syntaxPossible();
+		console.log(possible);
 		if(possible == true){
-
 			$(".glean-gather").each(function(i,node){
-
+				console.log("#"+$data.settings.cullTo);
+				$this.find("#"+$data.settings.cullTo).append($(this));
 			});
 		}
 		else{
@@ -82,6 +83,7 @@ $.fn.Glean = function(data) {
 				console.log("syntax approved: "+ $(this).text());
 				$(this).removeClass("glean-possible");
 				$(this).addClass("glean-gather");
+				$(this).next().addClass("glean-gather");
 				possible++;
 			}
 			else if(approv == 206){
@@ -92,7 +94,7 @@ $.fn.Glean = function(data) {
 				$(this).removeClass("glean-possible");
 			}
 		});
-		if(possible > 1){
+		if(possible != 0){
 			return true;
 		}
 		else{

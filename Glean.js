@@ -60,23 +60,45 @@ $.fn.Glean = function(data) {
 	}
 /*> syntax*/
 	function syntaxGather(){
-		$("h1, h2, h3, h4, h5, h6").addClass("glean-possible");
+		var possible 	= syntaxPossible();
+		if(possible == true){
+
+			$(".glean-gather").each(function(i,node){
+
+			});
+		}
+		else{
+			// dont do anything you cant, no variables.
+		}
+		var html 			= htmlGet();
+		console.log("syntaxGather() = "+html);
+	}
+	function syntaxPossible(){
+		$this.find("h1, h2, h3, h4, h5, h6").addClass("glean-possible");
+		var possible = 0;
 		$('.glean-possible').each(function(i, node) {
 			var approv = syntaxApprove($(this).text());
 			if(approv == 100){
 				console.log("syntax approved: "+ $(this).text());
 				$(this).removeClass("glean-possible");
+				$(this).addClass("glean-gather");
+				possible++;
 				// add to cull que
 			}
 			else if(approv == 206){
-				// warn and remove
+				$(this).removeClass("glean-possible");
+				// warn and remove class + the tag that still exits.
 			}
 			else{
-				// remove possible class
+				$(this).removeClass("glean-possible");
 			}
 		});
-		var html = htmlGet();
-		console.log("syntaxGather() = "+html);
+		if(possible > 1){
+			return true;
+		}
+		else{
+			return false;
+		}
 	}
 	function syntaxApprove(content){
 		console.log(content)
@@ -137,6 +159,7 @@ $.fn.Glean = function(data) {
 			return null;// dont do anything.
 		}
 		else{
+			$this.append("<div id=\"glean-get\" style=\"display:none;\"></div>");
 			syntaxGather();
 			var html = htmlGet();
 		}

@@ -17,7 +17,11 @@ $.fn.Glean = function(data) {
 		get: false,
 		taken: null
 	}
-	/*data*/
+	$data.syntax = {
+		opening: "!/",
+		closing: "/!"
+	}
+/*> data*/
 	function datacheck(data){
 	  return datascrub(data);
 	}
@@ -57,14 +61,37 @@ $.fn.Glean = function(data) {
 /*> syntax*/
 	function syntaxGather(){
 		$("h1, h2, h3, h4, h5, h6").addClass("glean-possible");
-		var html = htmlGet();
-		$('.glean-possible').each(function(i, obj) {
-    	console.log(obj);
-    	console.log(obj.textContent);
+		$('.glean-possible').each(function(i, node) {
+			var approv = syntaxApprove($(this).text());
+			if(approv == 100){
+				console.log("syntax approved: "+ $(this).text());
+				$(this).removeClass("glean-possible");
+				// add to cull que
+			}
+			else if(approv == 206){
+				// warn and remove
+			}
+			else{
+				// remove possible class
+			}
 		});
+		var html = htmlGet();
 		console.log("syntaxGather() = "+html);
 	}
-	function syntaxApprove(){}
+	function syntaxApprove(content){
+		console.log(content)
+		if(content.indexOf($data.syntax.opening) == 0){
+			if(content.lastIndexOf($data.syntax.closing) == content.length - $data.syntax.closing.length){
+				return 100;
+			}
+			else{
+				return 206;
+			}
+		}
+		else{
+			return 406;
+		}
+	}
 /*> html*/
 	/*
 	 Checks to see if the get is true or not,

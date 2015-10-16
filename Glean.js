@@ -56,11 +56,12 @@ $.fn.Glean = function(data) {
 	}
 /*> syntax*/
 	function syntaxGather(){
-		var html = htmlGet();
 		$("h1, h2, h3, h4, h5, h6").addClass("glean-possible");
-		// $('.glean-possible').each(function(i, obj) {
-    //
-		// });
+		var html = htmlGet();
+		$('.glean-possible').each(function(i, obj) {
+    	console.log(obj);
+    	console.log(obj.textContent);
+		});
 		console.log("syntaxGather() = "+html);
 	}
 	function syntaxApprove(){}

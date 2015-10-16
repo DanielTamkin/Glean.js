@@ -29,7 +29,7 @@ $.fn.Glean = function(data) {
 	  return {
 	    content: $this,
 	    cull: true,
-			cullTo: "#glean-cull"
+			cullTo: "glean-get"
 		}
 	}
 	function datascrub(data){
@@ -83,7 +83,6 @@ $.fn.Glean = function(data) {
 				$(this).removeClass("glean-possible");
 				$(this).addClass("glean-gather");
 				possible++;
-				// add to cull que
 			}
 			else if(approv == 206){
 				$(this).removeClass("glean-possible");
@@ -159,7 +158,7 @@ $.fn.Glean = function(data) {
 			return null;// dont do anything.
 		}
 		else{
-			$this.append("<div id=\"glean-get\" style=\"display:none;\"></div>");
+			$this.append("<div id=\""+$data.settings.cullTo+"\" style=\"display:none;\"></div>");
 			syntaxGather();
 			var html = htmlGet();
 		}

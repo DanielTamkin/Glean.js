@@ -61,7 +61,6 @@ $.fn.Glean = function(data) {
 /*> syntax*/
 	function syntaxGather(){
 		var possible 	= syntaxPossible();
-		console.log(possible);
 		if(possible == true){
 			$(".glean-gather").each(function(i,node){
 				console.log("#"+$data.settings.cullTo);
@@ -77,7 +76,7 @@ $.fn.Glean = function(data) {
 	function syntaxPossible(){
 		$this.find("h1, h2, h3, h4, h5, h6").addClass("glean-possible");
 		var possible = 0;
-		$('.glean-possible').each(function(i, node) {
+		$this.find('.glean-possible').each(function(i, node) {
 			var approv = syntaxApprove($(this).text());
 			if(approv == 100){
 				console.log("syntax approved: "+ $(this).text());
@@ -105,14 +104,14 @@ $.fn.Glean = function(data) {
 		console.log(content)
 		if(content.indexOf($data.syntax.opening) == 0){
 			if(content.lastIndexOf($data.syntax.closing) == content.length - $data.syntax.closing.length){
-				return 100;
+				return 100;// all good pass
 			}
 			else{
-				return 206;
+				return 206;// errors in the syntax
 			}
 		}
 		else{
-			return 406;
+			return 406;// no syntax detected
 		}
 	}
 /*> html*/
@@ -131,6 +130,11 @@ $.fn.Glean = function(data) {
 			html = $data.html.taken;
 		}
 		return html;
+	}
+	function htmlFind(){
+		var html = htmlGet();
+		html = html.find($data.html.cullTo);
+		console.log(html);
 	}
 	function htmlSiftTo(id){
 		var data = {
@@ -172,14 +176,19 @@ $.fn.Glean = function(data) {
 	function appCalculation(){
 		htmlCull();
 	}
-	function appGet(){
-		return $data.html;
+	function appGet(variable){
+		if(variable != undefined){
+			return htmlFind(variable);
+		}
+		else{
+			return $data.settings;
+		}
 	}
 /*> objective functions / Runnables*/
 	app();
 	return {
-	  get: function(data) {
-	    return appGet(data);
+	  get: function(variable) {
+	    return appGet(variable);
 	  },
 		reload: function(){
 			app();// just reloads the app model to get new info.

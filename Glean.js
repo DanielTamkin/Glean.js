@@ -63,7 +63,6 @@ $.fn.Glean = function(data) {
 		var possible 	= syntaxPossible();
 		if(possible == true){
 			$(".glean-gather").each(function(i,node){
-				console.log("#"+$data.settings.cullTo);
 				$this.find("#"+$data.settings.cullTo).append($(this));
 			});
 		}
@@ -71,7 +70,6 @@ $.fn.Glean = function(data) {
 			// dont do anything you cant, no variables.
 		}
 		var html 			= htmlGet();
-		console.log("syntaxGather() = "+html);
 	}
 	function syntaxPossible(){
 		$this.find("h1, h2, h3, h4, h5, h6").addClass("glean-possible");
@@ -101,7 +99,6 @@ $.fn.Glean = function(data) {
 		}
 	}
 	function syntaxApprove(content){
-		console.log(content)
 		if(content.indexOf($data.syntax.opening) == 0){
 			if(content.lastIndexOf($data.syntax.closing) == content.length - $data.syntax.closing.length){
 				return 100;// all good pass
@@ -133,7 +130,6 @@ $.fn.Glean = function(data) {
 	}
 	function htmlFind(){
 		var html = htmlGet();
-		html = html.find($data.html.cullTo);
 		console.log(html);
 	}
 	function htmlSiftTo(id){

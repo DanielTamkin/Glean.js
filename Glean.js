@@ -67,9 +67,8 @@ $.fn.Glean = function(data) {
 			});
 		}
 		else{
-			// dont do anything you cant, no variables.
+			// dont do anything. You cant, no variables.
 		}
-		var html 			= htmlGet();
 	}
 	function syntaxPossible(){
 		$this.find("h1, h2, h3, h4, h5, h6").addClass("glean-possible");
@@ -128,9 +127,11 @@ $.fn.Glean = function(data) {
 		}
 		return html;
 	}
-	function htmlFind(){
-		var html = htmlGet();
-		console.log(html);
+	function htmlFind(variable){
+		var content = $this.find("#"+$data.html.cullTo),
+				element = content.find("#"+variable),
+				data 		=  element.next().html();
+		return data.trim();// removes whitespaces
 	}
 	function htmlSiftTo(id){
 		var data = {
@@ -162,8 +163,11 @@ $.fn.Glean = function(data) {
 		else{
 			$this.append("<div id=\""+$data.settings.cullTo+"\" style=\"display:none;\"></div>");
 			syntaxGather();
-			var html = htmlGet();
 		}
+	}
+/*> Idify*/
+	function Idify(variable){
+		return variable.replace(/\s/g, "").toLowerCase();
 	}
 /*> app*/
 	function app(){
@@ -174,6 +178,7 @@ $.fn.Glean = function(data) {
 	}
 	function appGet(variable){
 		if(variable != undefined){
+			variable = Idify(variable);
 			return htmlFind(variable);
 		}
 		else{

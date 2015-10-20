@@ -67,6 +67,7 @@ $.fn.Glean = function(data) {
 			});
 		}
 		else{
+			appWarn("no variables detected.");
 			// dont do anything. You cant, no variables.
 		}
 	}

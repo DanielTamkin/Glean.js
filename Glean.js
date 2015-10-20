@@ -76,7 +76,6 @@ $.fn.Glean = function(data) {
 		$this.find('.glean-possible').each(function(i, node) {
 			var approv = syntaxApprove($(this).text());
 			if(approv == 100){
-				console.log("syntax approved: "+ $(this).text());
 				$(this).removeClass("glean-possible");
 				$(this).addClass("glean-gather");
 				$(this).next().addClass("glean-gather");
@@ -175,6 +174,15 @@ $.fn.Glean = function(data) {
 	}
 	function appCalculation(){
 		htmlCull();
+	}
+	function appWarn(message){
+		console.warn("Glean: WARN - "+message);
+	}
+	function appError(){
+		console.error("Glean: ERROR - "+message);
+	}
+	function appLog(){
+		console.log("Glean: "+message);
 	}
 	function appGet(variable){
 		if(variable != undefined){

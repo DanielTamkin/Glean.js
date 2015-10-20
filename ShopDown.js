@@ -1,29 +1,37 @@
 /*
-	ShopDown testing[Alpha 1]- by Danieltamkin:
+	ShopDown testing[Development - Stable]- by Danieltamkin:
 
 	Main Plugin in development(Compiler),
 	Compiling html to a product object.
-
+	(May morph into generic data compiler)
+	proposed use.
+	var Glean 	= $("thiselement.section").Glean(),
+			link 		= Glean.get("link");
+	console.log(link);
+	----
+	output: http://danieltamkin.com
 */
-$.fn.ShopDown = function($data) {
+$.fn.ShopDown = function(data) {
 	$this = $(this);
-	datacheck($data);
+	$data = [];
+	$data.settings = datacheck(data);
 	/*data*/
 	function datacheck(data){
-	  $data = datascrub(data);
+	  return datascrub(data);
 	}
 	function datatemplate(){
-	  return data = {
+	  return {
+			leftovers: false,
 	    content: $this,
 	    sanitize: true,
 			cull: true,
-			images: true
+			images: true,
 			compile: true
 	  }
 	}
 	function datascrub(data){
 	  template = datatemplate();
-		if(data == undefined || data.length < 1){
+		if(data == undefined || $.isEmptyObject(data) == true){
 			data = template;
 		}
 		else{
@@ -48,130 +56,187 @@ $.fn.ShopDown = function($data) {
 		return data;
 	}
 	/*html*/
-	function htmlGet(){
-		if(window.htmlGot !== true){
-			htmlCull();// removes images from the Dom.
-			html = $($data.content).html();
-			window.html 		= html;
-			window.htmlGot  = true;// so not to look for html again.
-	  	return html;
-		}
-		else{
-			return window.html;
-		}
-	}
-	function htmlSiftTo(id){
-	  data = {
-	    h1: 'h1#'+id,
-	    h2: 'h2#'+id,
-	    h3: 'h3#'+id,
-	    h4: 'h4#'+id,
-	    h5: 'h5#'+id,
-	    h6: 'h6#'+id
-	  }
-	  var	content		= $($data.content),
-	      SiftedTo 	= null;
-	  $.each(data,function(key,value){
-	    Sift = content.find(value);
-	    if(Sift.length < 1){
-	      // continue to find the proper value, this one doesn't exist.
-	    }
-	    else{
-	      SiftedTo = value;
-	      return false;// break out of loop
-	    }
-	  });
-	  return SiftedTo;
-	}
-	function htmlFind(id,multipleGet=false){
-	  if(id == "productimages"){
-			return htmlImages();
-		}
-		else{
-			var	content			= $($data.content),
-		      multiple 		= content.find(htmlSiftTo(id)).get();
-		  if(multiple.length < 1){
-		    console.warn("Error, We're missing the tag "+id+"");
-		  }
-		  else if(multiple.length > 1 && multipleGet == true){
-		    console.info(multipleGet);
-		    // work on this in a later date.
-		  }
-		  else{
-		    var html 				= htmlGet(),
-		        element 		= content.find("#"+id),
-		        data 				= element.next("p").html();
-		    return data.trim();
-		  }
-		}
-	}
-	function htmlCull(){
-	  if($data.cull == true){
-	    var	content				= $($data.content),
-					htmlOriginal 	= content.html();
-			content.find("img").addClass("remove");
-			content.append("<div id=\"htmlOriginal\">"+htmlOriginal+"</div>");
-			content.find("img").remove(".remove");
-	  }
-	}
-	function htmlImages(){
-		var html 			= $($data.content).find("#htmlOriginal"),
-				images 		= html.find("img"),
-				multiples = [];
-		$.each(images,function(key,value){
-			image = {
-				src: $(this).attr("src"),
-				alt: $(this).attr("alt"),
-				title: $(this).attr("title")
+		function htmlGet(){
+			if(window.htmlGot !== true){
+				htmlCull();// removes images from the Dom.
+				html = $($data.settings.content).html();
+				// $data.html.html = html Work on this on a later date.
+				window.html 		= html;
+				window.htmlGot  = true;// so not to look for html again.
+		  	return html;
 			}
-			multiples.push(image);
-		});
-		return multiples;
-	}
-	function htmlParse(){
-	  var html        = htmlGet();
-	  console.log("!html! "+html);
-	}
-	/*app*/
-	function appCalculation(){
-	  product = {
-	    name:   htmlFind("productname"),
-	    price:  htmlFind("productprice"),
-	    link:	  htmlFind("productlink"),
-			description: htmlFind("productdescription")
-	  }
-		if($data.images == true){
-			product.images = htmlFind("productimages");
+			else{
+				return window.html;
+			}
 		}
-	  console.log(product);
-	  console.log("ShopDown ran Sucessfully:");
-	  $data.product = product;
-	}
-	function appSanitize(){
-	  if($data.sanitize == true){
-	    $($data.content).html("");
-	  }
-	}
-	function appOutput(data){
-		var output = null;
-		if(data == undefined){
-			output = $data.product;
+		function htmlSiftTo(id){
+		  data = {
+		    h1: 'h1#'+id,
+		    h2: 'h2#'+id,
+		    h3: 'h3#'+id,
+		    h4: 'h4#'+id,
+		    h5: 'h5#'+id,
+		    h6: 'h6#'+id
+		  }
+		  var	content		= $($data.settings.content),
+		      SiftedTo 	= null;
+		  $.each(data,function(key,value){
+		    Sift = content.find(value);
+		    if(Sift.length < 1){
+		      // continue to find the proper value, this one doesn't exist.
+		    }
+		    else{
+		      SiftedTo = value;
+		      return false;// break out of loop
+		    }
+		  });
+		  return SiftedTo;
 		}
-		else{
-			$.each($data.product,function(key,value){
-				if(key == data){
-					output = value;
-					return false;//break this loop!
+		function htmlFind(id,multipleGet=false){
+		  if(id == "productimages"){
+				return htmlImages();
+			}
+			else{
+				var	content			= $($data.settings.content),
+			      multiple 		= content.find(htmlSiftTo(id)).get();
+			  if(multiple.length < 1){
+			    console.warn("Error, We're missing the tag "+id+"");
+			  }
+			  else if(multiple.length > 1 && multipleGet == true){
+			    console.info(multipleGet);
+			    // work on this in a later date.
+			  }
+			  else{
+			    var html 				= htmlGet(),
+			        element 		= content.find("#"+id),
+			        data 				= element.next("p").html();
+					/*resets*/
+					content.find("#"+id).attr('id', 'shopdown-remove');
+					element.next("p").addClass("shopdown-remove");
+					// content.find("#"+id).empty();
+					// element.next("p").empty();
+			    return data.trim();
+			  }
+			}
+		}
+		function htmlCull(){
+		  if($data.settings.cull == true){
+		    var	content				= $($data.settings.content),
+						htmlOriginal 	= content.html();
+				content.find("img").addClass("remove");
+				content.append("<div id=\"shopdown-htmlOriginal\">"+htmlOriginal+"</div>");
+				content.find("img").remove(".remove");
+		  }
+		}
+		function htmlImages(){
+			var html 			= $($data.settings.content).find("#shopdown-htmlOriginal"),
+					images 		= html.find("img"),
+					multiples = [];
+			$.each(images,function(key,value){
+				image = {
+					src: $(this).attr("src"),
+					alt: $(this).attr("alt"),
+					title: $(this).attr("title")
 				}
+				multiples.push(image);
 			});
+			return multiples;
+		}
+		function htmlParse(){
+		  var html        = htmlGet();
+		  console.log("!html! "+html);
+		}
+		function htmlLeftOvers(){
+			var	content	= $($data.settings.content);
+			content.find(htmlSiftTo("shopdown-remove")).remove();
+			content.find("p.shopdown-remove").remove();
+			content.find("#shopdown-htmlOriginal").remove();
+			content.wrapInner("<div id=\"shopdown-leftovers\"></div>");
+		}
+		function htmlSanitize(){
+			/*
+				regardless of sanitization or not,
+				we have to at least hide
+				the original html.
+			*/
+			$($data.settings.content).find("#shopdown-htmlOriginal").hide();
+		  if($data.settings.sanitize == true){
+
+				if($data.settings.leftovers == true){
+
+					htmlLeftOvers();
+				}
+				else{
+					$($data.settings.content).empty("");
+				}
+			}
+		}
+		function htmlTest(id){
+			// console.log("id test= "+id);
+			// if(id == undefined){
+			// 	return undefined;
+			// }
+			// else{
+			// 	console.log("true");
+			// 	var	content			= $($data.settings.content),
+			//       multiple 		= content.find(htmlSiftTo(id)).get();
+			// 	console.log(multiple);
+			// 	if(multiple.length < 1){
+			//     console.warn("Error, We're missing the tag "+id+"");
+			//   }
+			//   else if(multiple.length > 1){
+			// 		return "AO1";
+			// 		// work on this in a later date.
+			//   }
+			//   else{
+			//     var html 				= htmlGet(),
+			//         element 		= content.find("#"+id),
+			//         data 				= element.next("p").html();
+			// 		/*resets*/
+			// 		content.find("#"+id).attr('id', 'shopdown-remove');
+			// 		element.next("p").addClass("shopdown-remove");
+			//     return data.trim();
+			//   }
+			// }
+		}
+	/*app*/
+		function appCalculation(){
+		  product = {
+		    name:   htmlFind("productname"),
+		    price:  htmlFind("productprice"),
+		    link:	  htmlFind("productlink"),
+				description: htmlFind("productdescription")
+		  }
+			if($data.settings.images == true){
+				product.images = htmlFind("productimages");
+			}
+		  console.log(product);
+		  console.log("ShopDown ran Sucessfully!");
+		  $data.product = product;
+		}
+		function appOutput(data){
+			var output = null;
+			if(data == undefined){
+				output = $data.product;
+			}
+			else{
+				$.each($data.product,function(key,value){
+					if(key == data){
+						output = value;
+						return false;//break this loop!
+					}
+				});
+			}
 			return output;
 		}
-	}
-	function app(){
-	  window.htmlGot = false;// yes your allowed to grab HTML!
-		appCalculation();
-	  appSanitize();
-	}
+		function appCleanup(){
+			htmlSanitize();
+		}
+		function app(){
+		  window.htmlGot = false;// yes your allowed to grab HTML!
+			appCalculation();
+			appCleanup();
+		}
 	app();
 	/*objective functions*/
 	return {

@@ -1,0 +1,17 @@
+/*
+ Checks to see if the get is true or not,
+ if its false then we read the html.
+*/
+
+function htmlGet(){
+  var html = "1";// just inits the variable
+  if($data.html.get != true){// first time grabbing html
+    $data.html.taken 	= $($data.settings.content).html();
+    $data.html.get 		= true;
+    html = $data.html.taken;
+  }
+  else{
+    html = $data.html.taken;
+  }
+  return html;
+}

@@ -116,8 +116,8 @@ $.fn.Glean = function(data) {
 	 if its false then we read the html.
 	*/
 	function htmlGet(){
-		var html = "1";
-		if($data.html.get != true){
+		var html = "1";// just inits the variable
+		if($data.html.get != true){// first time grabbing html
 			$data.html.taken 	= $($data.settings.content).html();
 			$data.html.get 		= true;
 			html = $data.html.taken;
@@ -156,6 +156,7 @@ $.fn.Glean = function(data) {
 		});
 		return SiftedTo;
 	}
+	/*simply takes away the approved variables or doesnt*/
 	function htmlCull(){
 		if($data.settings.cull != true){
 			return null;// dont do anything.
@@ -165,12 +166,19 @@ $.fn.Glean = function(data) {
 			syntaxGather();
 		}
 	}
+/*> IdCheck*/
+function IdCheck(){
+	var	content		= $($data.settings.content).html();
+	appLog("test");
+	appLog(content);
+}
 /*> Idify*/
 	function Idify(variable){
 		return variable.replace(/\s/g, "").toLowerCase();
 	}
 /*> app*/
 	function app(){
+		IdCheck();
 		appCalculation();
 	}
 	function appCalculation(){
@@ -179,10 +187,10 @@ $.fn.Glean = function(data) {
 	function appWarn(message){
 		console.warn("Glean: WARN - "+message);
 	}
-	function appError(){
+	function appError(message){
 		console.error("Glean: ERROR - "+message);
 	}
-	function appLog(){
+	function appLog(message){
 		console.log("Glean: "+message);
 	}
 	function appGet(variable){
@@ -201,7 +209,7 @@ $.fn.Glean = function(data) {
 	    return appGet(variable);
 	  },
 		reload: function(){
-			app();// just reloads the app model to get new info.
+			app(reload);// just reloads the app model to get new info.
 		}
 	}
 };

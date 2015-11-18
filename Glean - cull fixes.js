@@ -28,7 +28,6 @@ $.fn.Glean = function(data) {
 	function datatemplate(){
 	  return {
 	    content: $this,
-	    cull: true,
 			variablesGet: "glean-get"
 		}
 	}
@@ -123,7 +122,7 @@ $.fn.Glean = function(data) {
 			return data.trim();// removes whitespaces
 		}
 	}
-	function htmlVariables(){
+	function htmlAppend(){
 		$this.append("<div id=\""+$data.html.variablesGet+"\" style=\"display:none;\"></div>");
 	}
 /*> IdCheck*/
@@ -142,7 +141,7 @@ function IdCheck(){
 		appCalculation();
 	}
 	function appCalculation(){
-		htmlVariables();
+		htmlAppend();
 		syntaxGather();
 	}
 	function appWarn(message){

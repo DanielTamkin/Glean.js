@@ -135,7 +135,7 @@ $.fn.Glean = function(data) {
 		$this.find("h1, h2, h3, h4, h5, h6").addClass("glean-idcheck");
 		$this.find('.glean-idcheck').each(function(i, node) {
 			var data 			= $(this).text(),
-					data 			= data.replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, ''),
+					data 			= Idify(data),
 					dataFront = data.slice(0,1),
 					dataTail  = data.slice(data.length-1,data.length),
 					id 				= $(this).attr("id");
@@ -151,7 +151,7 @@ $.fn.Glean = function(data) {
 	}
 /*> Idify*/
 	function Idify(variable){
-		return variable.replace(/\s/g, "").toLowerCase();
+		return variable.replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, '').toLowerCase();
 	}
 /*> app*/
 	function app(){

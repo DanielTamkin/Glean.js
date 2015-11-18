@@ -13,7 +13,7 @@ $.fn.Glean = function(data) {
 	$data = [];
 	$data.settings = datacheck(data);
 	$data.html = {
-		cullTo: $data.settings.cullTo,
+		variablesGet: $data.settings.variablesGet,
 		get: false,
 		taken: null
 	}
@@ -28,8 +28,7 @@ $.fn.Glean = function(data) {
 	function datatemplate(){
 	  return {
 	    content: $this,
-	    cull: true,
-			cullTo: "glean-get"
+			variablesGet: "glean-get"
 		}
 	}
 	function datascrub(data){
@@ -60,10 +59,10 @@ $.fn.Glean = function(data) {
 	}
 /*> syntax*/
 	function syntaxGather(){
-		var possible 	= syntaxPossible();
+		var possible 	= syntaxPossible(); // tags and approves all ID's
 		if(possible == true){
 			$(".glean-gather").each(function(i,node){
-				$this.find("#"+$data.settings.cullTo).append($(this));
+				$this.find("#"+$data.settings.variablesGet).append($(this));
 			});
 		}
 		else{
@@ -84,6 +83,7 @@ $.fn.Glean = function(data) {
 			}
 			else if(approv == 206){
 				$(this).removeClass("glean-possible");
+				appWarn("Syntax error, removing declaration");
 				// warn and remove class + the tag that still exits.
 			}
 			else{
@@ -107,82 +107,60 @@ $.fn.Glean = function(data) {
 			}
 		}
 		else{
-			return 406;// no syntax detected
+			if(content.lastIndexOf($data.syntax.closing) == content.length - $data.syntax.closing.length){
+				return 206;// erros in the syntax
+			}
+			else{
+				return 406;// no syntax detected
+			}
 		}
 	}
 /*> html*/
-	/*
-	 Checks to see if the get is true or not,
-	 if its false then we read the html.
-	*/
-	function htmlGet(){
-		var html = "1";// just inits the variable
-		if($data.html.get != true){// first time grabbing html
-			$data.html.taken 	= $($data.settings.content).html();
-			$data.html.get 		= true;
-			html = $data.html.taken;
-		}
-		else{
-			html = $data.html.taken;
-		}
-		return html;
-	}
 	function htmlFind(variable){
-		var content = $this.find("#"+$data.html.cullTo),
+		var content = $this.find("#"+$data.html.variablesGet),
 				element = content.find("#"+variable),
 				data 		=  element.next().html();
-		return data.trim();// removes whitespaces
-	}
-	function htmlSiftTo(id){
-		var data = {
-			h1: 'h1#'+id,
-			h2: 'h2#'+id,
-			h3: 'h3#'+id,
-			h4: 'h4#'+id,
-			h5: 'h5#'+id,
-			h6: 'h6#'+id
-		};
-		var	content		= htmlGet(),
-				SiftedTo 	= null;
-		$.each(data,function(key,value){
-			Sift = content.find(value);
-			if(Sift.length < 1){
-				// continue to find the proper value, this one doesn't exist.
-			}
-			else{
-				SiftedTo = value;
-				return false;// break out of loop
-			}
-		});
-		return SiftedTo;
-	}
-	/*simply takes away the approved variables or doesnt*/
-	function htmlCull(){
-		if($data.settings.cull != true){
-			return null;// dont do anything.
+		if(data == undefined){
+			return undefined;
 		}
 		else{
-			$this.append("<div id=\""+$data.settings.cullTo+"\" style=\"display:none;\"></div>");
-			syntaxGather();
+			return data.trim();// removes whitespaces
 		}
 	}
-/*> IdCheck*/
-function IdCheck(){
-	var	content		= $($data.settings.content).html();
-	appLog("test");
-	appLog(content);
-}
+	function htmlAppend(){
+		$this.append("<div id=\""+$data.html.variablesGet+"\" style=\"display:none;\"></div>");
+	}
+	function htmlIdCheck(){
+		var	content		= $($data.settings.content).html();
+		$this.find("h1, h2, h3, h4, h5, h6").addClass("glean-idcheck");
+		$this.find('.glean-idcheck').each(function(i, node) {
+			var data 			= $(this).text(),
+					data 			= data.replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, ''),
+					dataFront = data.slice(0,1),
+					dataTail  = data.slice(data.length-1,data.length),
+					id 				= $(this).attr("id");
+			if(data != id){
+				$(this).removeAttr("id");
+				$(this).attr("id",data);// re inits the new id
+			}
+			else{
+				// leave it its all good.
+			}
+		});
+		$this.find("h1, h2, h3, h4, h5, h6").removeClass("glean-idcheck");
+	}
 /*> Idify*/
 	function Idify(variable){
 		return variable.replace(/\s/g, "").toLowerCase();
 	}
 /*> app*/
 	function app(){
-		IdCheck();
 		appCalculation();
 	}
 	function appCalculation(){
-		htmlCull();
+		htmlIdCheck();
+		htmlAppend();
+		syntaxGather();
 	}
 	function appWarn(message){
 		console.warn("Glean: WARN - "+message);

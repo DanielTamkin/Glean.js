@@ -107,7 +107,12 @@ $.fn.Glean = function(data) {
 			}
 		}
 		else{
-			return 406;// no syntax detected
+			if(content.lastIndexOf($data.syntax.closing) == content.length - $data.syntax.closing.length){
+				return 206;// erros in the syntax
+			}
+			else{
+				return 406;// no syntax detected
+			}
 		}
 	}
 /*> html*/
@@ -125,22 +130,34 @@ $.fn.Glean = function(data) {
 	function htmlAppend(){
 		$this.append("<div id=\""+$data.html.variablesGet+"\" style=\"display:none;\"></div>");
 	}
-/*> IdCheck*/
-function IdCheck(){
-	var	content		= $($data.settings.content).html();
-	appLog("test");
-	appLog(content);
-}
+	function htmlIdCheck(){
+		var	content		= $($data.settings.content).html();
+		$this.find("h1, h2, h3, h4, h5, h6").addClass("glean-idcheck");
+		$this.find('.glean-idcheck').each(function(i, node) {
+			var data 			= $(this).text(),
+					data 			= data.replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, ''),
+					dataFront = data.slice(0,1),
+					dataTail  = data.slice(data.length-1,data.length),
+					id 				= $(this).attr("id");
+			if(data != id){
+				$(this).removeAttr("id");
+				$(this).attr("id",data);// re inits the new id
+			}
+			appLog(data + " < -- > "+id);
+			appLog("\ "+$(this).attr("id"));
+		});
+		$this.find("h1, h2, h3, h4, h5, h6").removeClass("glean-idcheck");
+	}
 /*> Idify*/
 	function Idify(variable){
 		return variable.replace(/\s/g, "").toLowerCase();
 	}
 /*> app*/
 	function app(){
-		IdCheck();
 		appCalculation();
 	}
 	function appCalculation(){
+		htmlIdCheck();
 		htmlAppend();
 		syntaxGather();
 	}

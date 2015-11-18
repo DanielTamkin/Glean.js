@@ -143,8 +143,9 @@ $.fn.Glean = function(data) {
 				$(this).removeAttr("id");
 				$(this).attr("id",data);// re inits the new id
 			}
-			appLog(data + " < -- > "+id);
-			appLog("\ "+$(this).attr("id"));
+			else{
+				// leave it its all good.
+			}
 		});
 		$this.find("h1, h2, h3, h4, h5, h6").removeClass("glean-idcheck");
 	}

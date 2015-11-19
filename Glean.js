@@ -187,7 +187,7 @@ $.fn.Glean = function(data) {
 	    return appGet(variable);
 	  },
 		reload: function(){
-			app(reload);// just reloads the app model to get new info.
+			app();// just reloads the app model to get new info.
 		}
 	}
 };

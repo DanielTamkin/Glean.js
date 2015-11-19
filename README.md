@@ -1,21 +1,15 @@
 # Glean.js
-With glean, you can have simple variables within your markdown or html.
+With glean, you can have simple variables within your html.
+Just initialize Glean onto where you've got your variables.
+`var html = $("section.html").Glean();`
 
-To start, you want to initialize the plugin, point it to where you have all
-your html.
-
-
-`var html = $("section.markdown").Glean();`
-
-Now get a variable, its as simple as this.
-
-`html.get("Purchase Link");`
-
-Assuming you have somewhere in your html, the variable.
+Make a couple variables in your html.
 
 ```
-<h1>!/Purchase link/!</h1>
+<h1>!/Product Link/!</h1>
 <p>http://redbubble.com/DanielTamkin</p>
 ```
 
-You would get the link.
+And now simply grab the variable like so.
+
+`var productLink = html.get(Product Link);`

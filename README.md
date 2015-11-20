@@ -15,6 +15,7 @@ CMS (`*cough*` [Ghost](https://github.com/TryGhost/Ghost) `*cough`)
 # !/Product link/!
 http://redbubble.com/DanielTamkin
 ```
+Run Glean:
 
 `var html = $("section.html").Glean();`
 

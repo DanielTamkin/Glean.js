@@ -1,7 +1,7 @@
 # Glean.js
 With Glean, you can have simple variables within your html,
 Drastically making your static site or markdown centered
-CMS (`*cough*` [Ghost](https://github.com/TryGhost/Ghost) `*cough`)
+CMS (`*cough*` [Ghost](https://github.com/TryGhost/Ghost) `*cough*`)
 
 ## To start
  Make a couple variables in your html.

@@ -1,4 +1,7 @@
 # Glean.js
+
+The Smart variable compiler for html.
+
 With Glean, you can have simple variables within your html,
 Drastically making your static site or markdown centered
 CMS (`*cough*` [Ghost](https://github.com/TryGhost/Ghost) `*cough*`)

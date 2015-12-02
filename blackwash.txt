@@ -1,0 +1,40 @@
+<section class="hero">
+  <div class="center">
+    <div class="header">
+      <h1>Glean</h1>
+    </div>
+  </div>
+</section>
+
+/*> hero*/
+  section.hero{
+    height:100%;
+    width:100%;
+    position:relative;
+    background:rgb(95, 176, 191);
+  }
+  section.hero .center{
+    width:100%;
+    display:inline-block;
+    position:absolute;
+    bottom:0;
+    /*background:rgba(255, 0, 0, 0.5);*/
+    text-align:center;
+  }
+  section.hero .header{
+    height:300px;
+
+    max-width:340px;
+    width:100%;
+    display:inline-block;
+    position:relative;
+    background:#000;
+    color:#fff;
+    text-align:center;
+    text-decoration:underline;
+    font-size:1.4em;
+    font-family:'WorkSans-Medium';
+  }
+  section.hero .header h1{
+    width:100%;
+  }

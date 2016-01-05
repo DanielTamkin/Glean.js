@@ -13,7 +13,7 @@ CMS (`*cough*` [Ghost](https://github.com/TryGhost/Ghost) `*cough*`)
 <h1>!/Product Link/!</h1>
 <p>http://redbubble.com/DanielTamkin</p>
 ```
-(for markdown it would be no diffrent)
+(for markdown it would be no different)
 ```
 # !/Product link/!
 http://redbubble.com/DanielTamkin

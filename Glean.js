@@ -108,7 +108,7 @@ $.fn.Glean = function(data) {
 		}
 		else{
 			if(content.lastIndexOf($data.syntax.closing) == content.length - $data.syntax.closing.length){
-				return 206;// erros in the syntax
+				return 206;// errors in the syntax
 			}
 			else{
 				return 406;// no syntax detected

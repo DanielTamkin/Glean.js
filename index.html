@@ -13,32 +13,44 @@
   <script type="text/javascript" src="showup.js"></script>
 </head>
 <body>
-  <!-- <section class="hero" style="background: url('assets/img/hero.jpg') no-repeat center center; -webkit-background-size: cover;-moz-background-size: cover;-o-background-size: cover;background-size: cover;"> -->
-  <!-- <section class="hero">
-    <div class="wrapper">
-      <section class="center title animate">
+  <section class="hero">
+    <div class="wrapper Container-Large">
+      <header class="title">
         <h1>Glean</h1>
-        <h2>The Smart variable compiler for html.</h2>
-        <div class="explore">Explore </div>
-      </section>
+        <h2>The variable compiler for html.</h2>
+        <div class="explore">
+          <div class="border"></div>
+          <p>Explore</p>
+         </div>
+      </header>
     </div>
-  </section> -->
-  <section class="content Container-Tiny">
-    <h1>Install</h1>
-    <div class="ghostb-cmd"> git clone <span>git://github.com/DanielTamkin/Glean.js.git</span></div>
-    <p>
-      Glean is a little ( ~ 5 KB ) jQuery reliant plugin that gives you the
-      power of variables where you wouldnt usually be able to get variables.
-    </p>
-    <p>
-      Its incredibly simple to impliment and the uses are limitless,
-      Think of it like sprinkling spicy pepper on an already
-      great meal.
-    </p>
   </section>
-<script>
-  $("section.hero .center").centerThis();
+  <section class="body shim Container-Large">
+    <section class="align-left">
 
-</script>
+    </section>
+    <section class="content align-right Container-Tiny">
+      <h1>Install</h1>
+      <div class="ghostb-cmd"> git clone <span>git://github.com/DanielTamkin/Glean.js.git</span></div>
+      <p>
+        Glean is a little ( ~ 5 KB ) jQuery reliant plugin that gives you the
+        power of variables where you wouldnt usually be able to get variables.
+      </p>
+      <p>
+        Its incredibly simple to impliment and the uses are limitless,
+        Think of it like sprinkling spicy pepper on an already
+        great meal.
+      </p>
+    </section>
+    <div style="clear:both;"></div>
+  </section>
+  <script>
+  $("section.hero .center").centerThis();
+  $offset = $("section.hero").outerHeight()/2;
+  $("section.shim").shimThis({
+    ontop: 'section.hero',
+    offset: $offset+'px'
+  });
+  </script>
 </body>
 </html>

@@ -42,17 +42,22 @@ p a:hover{
 }
 p a{
   padding:1px 3px;
-  background:rgba(92, 131, 150, 0.63);
   box-sizing:border-box;
-  color:#201919;
+  color:#0500ff;
 }
 /*> generals / contents*/
+  section.content{
+  }
   section.content h1{
     margin-bottom:0.6em;
-    font-family:'Lato';
+    color:#000;
+    text-transform:uppercase;
+    font-family:'Lato-Black';
   }
   section.content p{
-    line-height:1.4;
+    margin:12px 0;
+    line-height:1.6;
+
   }
   section.content a{
     font-weight:600;
@@ -118,24 +123,27 @@ p a{
     #site-body{
 
     }
-    #site-body aside{
+    #site-body .a-left{float:left;}
+    #site-body .a-right{float:right;}
+    #site-body .align-left{
       padding:1em 3em;
       box-sizing:border-box;
       float:left;
-      width:56%;
+      width:54%;
+      /*background:rgb(96, 130, 182);*/
     }
-    #site-body .content-left{
+    #site-body .align-right{
+      padding:0.6em;
+      box-sizing:border-box;
       float:right;
-      width:44%;
+      width:46%;
     }
-    #site-body .align-left{float:left;}
-    #site-body .align-right{float:right;}
     #site-body section.card{
       margin:0.6em 0;
       width:260px;
       display:inline-block;
       background:#fff;
-      box-shadow: 0px -1px 4px 1px rgba(20, 20, 20, 0.4);
+      box-shadow: 0px 1px 4px 1px rgba(0, 0, 0, 0.61);
       line-height:1.6;
     }
     #site-body section.card h2{
@@ -149,13 +157,26 @@ p a{
       border:none;
       border:1px solid rgba(47, 117, 104, 0.34);
     }
-    #site-body section.card header{
+    #site-body section.card header.preview{
+      padding:0.4em;
+      box-sizing:border-box;
       height:260px;
       width:100%;
       background:rgb(47, 117, 104);
     }
-    #site-body section.card section.tag{
+    #site-body section.card section.body{
       padding:1em;
       padding-bottom:1.1em;
       box-sizing:border-box;
     }
+    #site-body section.card section.body header{
+      line-height:1!important;
+      font-size:0.56em;
+    }
+/*> #site-footer*/
+  #site-footer{
+    padding:1.6em;
+    box-sizing:border-box;
+    width:100%;
+    background:#52465b;
+  }

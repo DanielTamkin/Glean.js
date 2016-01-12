@@ -1,60 +1,14 @@
-<!-- <section class="hero" style="background: url('assets/img/hero.jpg') no-repeat center center; -webkit-background-size: cover;-moz-background-size: cover;-o-background-size: cover;background-size: cover;"> -->
-<section class="hero">
-  <div class="wrapper">
-    <section class="center title animate">
-      <h1>Glean</h1>
-      <h2>The Smart variable compiler for html.</h2>
-      <div class="explore">Explore </div>
-    </section>
-  </div>
+<section class="card a-right">
+  <header>
+
+  </header>
+  <section class="tag">
+    <hr/>
+    <h2>Code:</h2>
+
+    <code class="code atom full">
+&lt;img alt=&quot;<span>!showup//Hey look,
+its the color green.//!</span>&quot; src=&quot;green.gif&quot;&gt;
+    </code>
+  </section>
 </section>
-<section class="content Container-Tiny">
-  <h1>Install</h1>
-  <div class="ghostb-cmd"> git clone <span>git://github.com/DanielTamkin/Glean.js.git</span></div>
-  <p>
-    Glean is a little ( ~ 5 KB ) jQuery reliant plugin that gives you the
-    power of variables where you wouldnt usually be able to get variables.
-  </p>
-  <p>
-    Its incredibly simple to impliment and the uses are limitless,
-    Think of it like sprinkling spicy pepper on an already
-    great meal.
-  </p>
-</section>
-<script>
-$("section.hero .center").centerThis();
-
-</script>
-
-  /*> hero*/
-  section.hero{
-    height:100%;
-    width:100%;
-    position:relative;
-    background:rgb(95, 176, 191);
-  }
-  section.hero .center{
-    width:100%;
-    display:inline-block;
-    position:absolute;
-    bottom:0;
-    /*background:rgba(255, 0, 0, 0.5);*/
-    text-align:center;
-  }
-  section.hero .header{
-    height:300px;
-
-    max-width:340px;
-    width:100%;
-    display:inline-block;
-    position:relative;
-    background:#000;
-    color:#fff;
-    text-align:center;
-    text-decoration:underline;
-    font-size:1.4em;
-    font-family:'WorkSans-Medium';
-  }
-  section.hero .header h1{
-    width:100%;
-  }

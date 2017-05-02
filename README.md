@@ -1,4 +1,4 @@
-![Glean by Daniel Tamkin](images/banner.png)
+![Glean by Daniel Tamkin](images/Banner.png)
 The Smart variable compiler for html.
 
 With Glean, you can have simple variables within your html.

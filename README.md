@@ -8,16 +8,19 @@ site (`*cough*` [Ghost](https://github.com/TryGhost/Ghost) `*cough*`) into a muc
 ## To start
  Make a couple variables in your html.
 
+``` html
+<section class="content">
+  <h1>!/Product Link/!</h1>
+  <p>http://redbubble.com/DanielTamkin</p>
+</section>
 ```
-<h1>!/Product Link/!</h1>
-<p>http://redbubble.com/DanielTamkin</p>
-```
-(for markdown it would be no diffrent)
-```
+(for markdown it would be no different)
+``` markdown
 # !/Product link/!
 http://redbubble.com/DanielTamkin
 ```
 Run Glean:
+
 
 ```javascript
 var link = null;
@@ -33,10 +36,12 @@ var html = $("section.html").Glean({
 });
 ```
 
+
 And now you can simply grab the variable in two ways:
 
 Method 1:
 `var productLink = html.get("Product Link");`
+
 
 Method 2:
 ```javascript

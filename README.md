@@ -20,14 +20,15 @@ http://redbubble.com/DanielTamkin
 Run Glean:
 
 ```javascript
+var link = null;
 var html = $("section.html").Glean({
   onStart: function(){
     // do something on start
   },
   onDone: function(data){
     // do something after render.
-    // 'data' object is a list of all
-    // compiled variables.
+    // like so:
+    link = data.get('Product Link');
   }
 });
 ```

@@ -15,9 +15,14 @@
       onStart: function(){},
       onDone: function(){}
     };
-    $settings   = $.extend(true,{},defaults , options);
-    $variables  = {};
-    $this       = this;
+    $settings      = $.extend(true,{},defaults , options);
+    $variables     = {};
+    $this          = this;
+    $runwithinCall = {
+      get: function(variable){
+        return getVariable(variable);
+      }
+    };
     /*
      Public functions
     */
@@ -30,7 +35,7 @@
         syntaxGather(),
         varsLoad()
       ).done(function(){
-        $settings.onDone($variables);
+        $settings.onDone($runwithinCall);
         dfd.resolve($variables);
       })
       .fail(function(){
@@ -44,6 +49,12 @@
      * @return {[type]}     [The variables value]
      */
     this.get = function(variable){
+      return getVariable(variable);
+    }
+    /*
+     Private functions
+    */
+    function getVariable(variable){
       if(variable != undefined){
   			return htmlFind(htmlSlugify(variable));
   		}
@@ -51,10 +62,6 @@
   			return undefined;
   		}
     }
-    /*
-     Private functions
-    */
-
     /**
      * Checks that each $settings.html.find has an id that
      * is a slugged version of its data, if it does not then make it
@@ -104,8 +111,8 @@
     function htmlFind(variable){
   		var content =  $this.find("#"+$settings.html.get),
   				element =  content.find("#"+variable),
-  				data 		=  element.next().hasClass($settings.html.gather).html();
-  		if(data == undefined){
+  				data 		=  element.next().html();
+      if(data == undefined){
   			return undefined;
   		}
   		else{

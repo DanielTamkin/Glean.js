@@ -1,5 +1,4 @@
-# Glean.js
-
+![Glean by Daniel Tamkin](images/banner.png)
 The Smart variable compiler for html.
 
 With Glean, you can have simple variables within your html.
@@ -37,6 +36,7 @@ And now you can simply grab the variable in two ways:
 
 Method 1:
 `var productLink = html.get("Product Link");`
+
 Method 2:
 ```javascript
 var html = $("section.html").Glean({

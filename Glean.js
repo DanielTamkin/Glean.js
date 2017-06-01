@@ -12,7 +12,6 @@
         opening: "!/",
         closing: "/!"
       },
-      plainText: false,
       hideOnBroken: false,
       onStart: function(){},
       onFail: function(){},
@@ -40,120 +39,116 @@
         });
         return dfd.promise();
       },
-      html: {
-        // test: function(data){
-        //   console.log(data);
-        //   var dfd = jQuery.Deferred();
-        //   callbackTest(function(error){
-        //     console.log(101);
-        //
-        //     if(!error){
-        //       asyncTest()
-        //         .done(function(message){
-        //           console.log('passed: '+message);
-        //           var message = {
-        //             message: "perfect run!"
-        //           }
-        //           dfd.resolve(logAdd(data,message));
-        //         })
-        //         .fail(function(error){
-        //           console.log('failed: '+error);
-        //           var message = {
-        //             message: "we have an error",
-        //             error: error
-        //           }
-        //           dfd.reject(logAdd(data,message));
-        //         });
-        //     }
-        //     else{
-        //       var message = {
-        //         message: "Looks like the callback has an error!",
-        //         error: error
-        //       }
-        //       dfd.resolve(logAdd(data,message));
-        //     }
-        //   });
-        //   return dfd.promise();
-        // },
-        stashCreate: function(data){
+      variable: {
+        search: function(data){
+          var dfd = jQuery.Deferred();
+          variablesSearch(function(error){
+            if(!error){
+              var message = {
+                message: "A peliminary search for variables came back true"
+              }
+              data.logs = logAdd(data.logs,message);
+              dfd.resolve(data);
+            }
+            else{
+              // no syntax, however find any bits of it and remove it.
+              variablesRemove(function(message){
+                var message = {
+                  message: "No syntax was found"
+                }
+                data.logs = logAdd(data.logs,message);
+                dfd.reject(data);
+              });
+            }
+          });
+          return dfd.promise();
+        }
+      },
+      compile: {
+        text: function(data){
+          var dfd = jQuery.Deferred();
+          compileText(function(response){
+            if(response.found){
+              var message = {
+                message: "Compiled syntax in plain text"
+              }
+              data.variables = response.variables;
+              data.logs = logAdd(data.logs,message);
+              dfd.resolve(data);
+            }
+            else{
+              var message = {
+                message: "No syntax in plain text",
+                details: response.error
+              }
+              data.logs = logAdd(data.logs,message);
+              dfd.resolve(data);
+            }
+          })
+          return dfd.promise();
+        },
+        html: function(data){
+          var dfd = jQuery.Deferred();
+          compileHTML(function(response){
+            if(response.found){
+              var message = {
+                message: "Compiled syntax in HTML"
+              }
+              data.variables = response.variables;
+              data.logs = logAdd(data.logs,message);
+              dfd.resolve(data);
+            }
+            else{
+              var message = {
+                message: "No syntax in HTML",
+                details: response.error
+              }
+              data.logs = logAdd(data.logs,message);
+              dfd.resolve(data);
+            }
+          })
+          return dfd.promise();
+        }
+      },
+      stash: {
+        create: function(data){
           var dfd = jQuery.Deferred();
           htmlStash(function(){
             var message = {
               message: "Creating a div called #"+$settings.html.stash+" to stash all data found."
             }
-            dfd.resolve(logAdd(data,message));
+            data.logs = logAdd(data.logs,message);
+            dfd.resolve(data);
           });
           return dfd.promise();
         },
-        variableSearch: function(data){
+        add: function(data){
           var dfd = jQuery.Deferred();
-          htmlIdSlugify(function(error){
-            if(!error){
+          if(data.variables.length !== 0){
+            htmlStashAdd(data.variables,function(response){
               var message = {
-                message: "Slugifying all id's with data, search elements are: "+$settings.html.find
+                message: "Adding variables to the data stash",
+                details: data.variables.length+" Variables added"
               }
-              dfd.resolve(logAdd(data,message));
+              data.variables = [];
+              data.logs = logAdd(data.logs,message);
+              dfd.resolve(data);
+            });
+          }
+          else{
+            var message = {
+              message: "No variables to add",
+              details: "There's no variables to add to the stash."
             }
-            else{
-              var message = {
-                message: "Slugifying all id's with data, search elements are: "+$settings.html.find,
-                details: error
-              }
-              dfd.reject(logAdd(data,message));
-            }
-          });
+            data.variables = [];
+            data.logs = logAdd(data.logs,message);
+            dfd.resolve(data);
+          }
           return dfd.promise();
         },
-        stashPopulate: function(data){
+        grab: function(data){
           var dfd = jQuery.Deferred();
-          stashPopulate()
-            .done(function(message){
-              console.log('passed: '+message);
-              var message = {
-                message: "All valid syntax is tagged for consumption."
-              };
-              dfd.resolve(logAdd(data,message));
-            })
-            .fail(function(error){
-              console.log('failed: '+error);
-              var message = {
-                message: "No syntax found.",
-                details: error
-              };
-              dfd.reject(logAdd(data,message));
-            });
-          return dfd.promise();
-        }
-      },
-      text:{
-        convert: function(data){
-          var dfd = jQuery.Deferred();
-          syntaxParseText()
-            .done(function(variables){
-              textToHTML(variables,function(error){
-                if(!error){
-                  var message = {
-                    message: "Found syntax in plain text form, converted to HTML."
-                  };
-                  dfd.resolve(logAdd(data,message));
-                }
-                else{
-                  var message = {
-                    message: "An unexpected error occured converting to html",
-                    details: error
-                  };
-                  dfd.reject(logAdd(data,message));
-                }
-              });
-            })
-            .fail(function(error){
-              console.log('failed: '+error);
-              var message = {
-                message: "No syntax found.",
-                details: error
-              };
-              dfd.reject(logAdd(data,message));
-            });
+          dfd.resolve(data);
           return dfd.promise();
         }
       }
@@ -164,47 +159,35 @@
     this.build = function(){
       var dfd = jQuery.Deferred();
       $settings.onStart();
-      if($settings.plainText !== true){
-        // use html
-        runStart()
-          .then($run.html.stashCreate)
-          .then($run.html.variableSearch)
-          .then($run.html.stashPopulate)
-          .then($run.varLoad)
-          .done(function(logs){
-            console.log(logs);
-            dfd.resolve();
-          })
-          .fail(function(logs){
-            console.log(logs);
-            console.log('fail');
-            dfd.reject();
-          });
-      }
-      else{
-        runStart()
-          .then($run.html.stashCreate)
-          .then($run.text.convert)
-          .then($run.html.variableSearch)
-          .then($run.html.stashPopulate)
-          .then($run.varLoad)
-          .done(function(logs){
-            console.log(logs);
-            dfd.resolve();
-          })
-          .fail(function(logs){
-            console.log(logs);
-            console.log('fail');
-            dfd.reject();
-          });
-      }
+      runStart({
+        data: '',
+        logs:[{
+              message:'Starting a new glean instance.',
+              time: $.now()
+        }]
+      })
+        .then($run.stash.create)
+        .then($run.variable.search)
+        .then($run.compile.html)
+        .then($run.stash.add)
+        .then($run.compile.text)
+        .then($run.stash.add)
+        .then($run.stash.grab)
+        .done(function(response){
+          console.log('taht');
+          console.log(response.logs);
+          dfd.resolve();
+        })
+        .fail(function(logs){
+          console.log(logs);
+          console.log('fail');
+          dfd.reject();
+        });
       return dfd.promise();
     };
-    function runStart(){
+    function runStart(log){
       var dfd = jQuery.Deferred();
-      dfd.resolve([{
-            message:'Starting a glean instance in html-mode'
-      }]);
+      dfd.resolve(log);
       return dfd.promise();
     }
     /**
@@ -225,6 +208,114 @@
   		else{
   			return undefined;
   		}
+    }
+    function compileText(callback){
+      console.log(101);
+      var response   = {
+        found: false,
+        error: '',
+        incomplete: 0,
+        text: '',
+        variables: []
+      }
+      var selector = $this.selector+" ."+$settings.html.stash;
+      var textwHTML = $this.html();
+      var textnHTML = $this.html();
+      textnHTML     = textnHTML.replace($(selector).html(), '');
+      console.log(textnHTML);
+      syntaxCount(textnHTML,function(count){
+        if(count !== 0){
+          for (var i = 0; i < count; i++) {
+            syntaxGrab(textwHTML,function(data){
+              console.log(data);
+              textwHTML = textwHTML.replace(data.syntax, '');
+              response.variables.push({key:data.key,value:data.value});
+            });
+          }
+          console.log(textwHTML);
+          response.found = true;
+        }
+        else{
+          response.found = false;
+        }
+      });
+      $($this).html(textwHTML);
+      console.log(response.variables);
+      // make the error code a little bit more digestable.
+      response.error = compileError(response);
+      callback(response);
+    }
+    function compileHTML(callback){
+      console.log(101);
+      var response   = {
+        found: false,
+        error: '',
+        incomplete: 0,
+        text: '',
+        variables: []
+      }
+  		$this.find($settings.html.find).each(function(i, node) {
+        console.log($(node).text());
+        syntaxValidate($(node).text(),function(valid){
+          if(valid){
+            var variable = {
+              key:variableSlugify($(node).text()),
+              value: $(node).next().html()
+            }
+            // sanatization services
+            $(node).next().remove();
+            $(node).remove();
+
+            response.variables.push(variable);
+            response.found = true;
+          }
+          else{
+            if($settings.hideOnBroken){
+              $(node).css("visibility","hidden");
+              $(node).next().css("visibility","hidden");
+            }
+            else{
+              syntaxRemove(syntax,function(syntaxClean){
+                console.log(syntaxClean);
+                if(syntaxClean){
+                  $(node).text(syntaxClean);
+                  response.incomplete++;
+                }
+              });
+            }
+            console.log(valid);
+          }
+        });
+      });
+      // make the error code a little bit more digestable.
+      response.error = compileError(response);
+      callback(response);
+    }
+    function compileError(response){
+      console.log(response.incomplete);
+      if(response.incomplete){
+        response.error = "incomplete syntax detected. ";
+        if($settings.hideOnBroken){
+          response.error += "They've been hidden from view.";
+        }
+        else if(response.incomplete <= 2){
+          response.error += "They've been removed of incomplete syntax.";
+        }
+      }
+      else if(response.incomplete >= 2){
+        response.error = ""+response.incomplete+" variables with incomplete syntax. ";
+        if($settings.hideOnBroken){
+          response.error += "They've been hidden from view.";
+        }
+        else if(response.incomplete <= 2){
+          response.error += "They've been removed of incomplete syntax.";
+        }
+      }
+      else{
+        response.error = "Have no fear, we will perform sanatization services.";
+      }
+
+      return response.error;
     }
     /**
      * Checks that each $settings.html.find has an id that
@@ -263,12 +354,38 @@
     function htmlSlugify(variable){
       return variable.replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, '-').toLowerCase();
     }
+    /**
+     * [htmlStashAdd description]
+     * @param  {[type]} variables
+     * @return {[type]}           [description]
+     */
+    function htmlStashAdd(variables,callback){
+      var selector = $this.selector+" ."+$settings.html.stash;
+      console.log($this);
+      console.log(selector);
+      for (var i = 0; i < variables.length; i++) {
+        var key   = {
+          data: $settings.syntax.opening+variables[i].key+$settings.syntax.closing,
+          style:"\"display:none;\"",
+          class: "\"glean-key\""
+        };
+        var value = {
+          data: variables[i].value,
+          style:"\"display:none;\"",
+          class: "\"glean-value\""
+        };
+        var add = "<h1 class="+key.class+" style="+key.style+">"+key.data+"</h1>"
+                + "<p class="+value.class+" style="+value.style+">"+value.data+"</p>";
+        $(selector).add(add).appendTo(selector);
+      }
+      callback();
+    }
     /*
     * Appends a stashed version of the html that we will touch,
     * we do this so we can scrub the visible html of any variables immediatly.
      */
     function htmlStash(callback){
-      $($this).add("<div id=\""+$settings.html.stash+"\" style=\"display:none;\"></div>").appendTo($this);
+      $($this).add("<div class=\""+$settings.html.stash+"\" style=\"display:none;\"></div>").appendTo($this);
       callback();
     }
     /**
@@ -291,7 +408,7 @@
     function varLoad(callback){
       $(".glean-gather").each(function(i,node){
         if($(this).hasClass('glean-key')){
-          var key   = varsSlugify($(this).text());
+          var key   = variableSlugify($(this).text());
           $variables[key] = $(this).next().html();
         }
       });
@@ -302,7 +419,7 @@
      * @param  {[String]} variable [Hand this string]
      * @return {[type]}          [A slugged version of the @param]
      */
-    function varsSlugify(variable){
+    function variableSlugify(variable){
       return variable.replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, '').toLowerCase();
     }
     // syntax
@@ -336,7 +453,15 @@
       });
       return dfd.promise();
   	}
-
+    function variablesSearch(callback){
+      var text = $this.text();
+      if(text.indexOf($settings.syntax.opening) > 0  && text.indexOf($settings.syntax.closing) > 0){
+        callback(false);
+      }
+      else{
+        callback(true);
+      }
+    }
     function textToHTML(variables,callback){
       console.log(variables);
       for (var i = 0; i < variables.length; i++) {
@@ -367,6 +492,7 @@
             syntaxGrab(text,function(data){
               // console.log(data);
               text = data.text;
+              text = text.replace(Syntax, '');
               variables.push({key:data.key,value:data.value});
             });
           }
@@ -418,7 +544,7 @@
       var data = {
         key: '',
         value: '',
-        text: '',
+        syntax: '',
         error: false,
         incomplete: 0
       };
@@ -439,9 +565,9 @@
         var indexValueData    = textRemovedKey.substring(indexValueOpening, indexValueClosing);
         data.key    = indexKeyData;
         data.value  = indexValueData;
-        data.text   = text.replace(Syntax, '');
-        data.text   = data.text.trim();
-        console.log(data.text);
+        data.syntax   = Syntax;
+        data.syntax   = data.syntax.trim();
+        console.log(data.syntax);
         // console.log(indexKeyOpening);
         // console.log(indexKeyClosing);
         // console.log("Syntax: "+Syntax);
@@ -452,9 +578,9 @@
         // console.log(indexValueClosing);
       }
       else{
-        text = text.replace($settings.syntax.opening,'');
-        text = text.replace($settings.syntax.closing,'');
-        data.text = text;
+        data.syntax = text.replace($settings.syntax.opening,'');
+        data.syntax = text.replace($settings.syntax.closing,'');
+        data.syntax = text;
         data.error = true;
       }
       callback(data);
@@ -534,29 +660,22 @@
      * @callback {[true/false]}      [true if valid, false if not]
      */
     function syntaxValidate(syntax,callback){
-      var data = {
-        key: '',
-        value: '',
-        valid: false
-      };
   		if(syntax.indexOf($settings.syntax.opening) == 0){
         // has both opening and closing braces
   			if(syntax.lastIndexOf($settings.syntax.closing) == syntax.length - $settings.syntax.closing.length){
-          data.valid = true;
-  				callback(data);
+  				callback(true);
   			}
   			else{
-  				callback(data);// errors in the syntax
+  				callback(false);// errors in the syntax
   			}
   		}
   		else{
         // has closing brace but no opening brace
   			if(syntax.lastIndexOf($settings.syntax.closing) == syntax.length - $settings.syntax.closing.length){
-          data.valid = true;
-  				callback(data)// errors in the syntax
+  				callback(true)// errors in the syntax
   			}
   			else{
-  				callback(data)// no syntax detected
+  				callback(false)// no syntax detected
   			}
   		}
   	}

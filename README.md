@@ -8,6 +8,7 @@ site (`*cough*` [Ghost](https://github.com/TryGhost/Ghost) `*cough*`) into a muc
 ## Make a few variables
 There are three ways to define variables, each one
 allowing the developer a different form of flexibility.
+
 __HTML__:
 
 ``` html

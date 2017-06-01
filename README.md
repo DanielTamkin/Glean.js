@@ -5,37 +5,43 @@ With Glean, you can have simple variables within your html.
 Drastically making your static or markdown centered
 site (`*cough*` [Ghost](https://github.com/TryGhost/Ghost) `*cough*`) into a much more customizable workspace.
 
-## To start
- Make a couple variables in your html.
+## Make a few variables
+There are three ways to define variables, each one
+allowing the developer a different form of flexibility.
+__HTML__:
 
 ``` html
-<section class="content">
-  <h1>!/Product Link/!</h1>
-  <p>http://redbubble.com/DanielTamkin</p>
+<section class="store-description">
+  <h1>!/Store Link/!</h1>
+  <p>http://store.roosterteeth.com/</p>
 </section>
 ```
-(for markdown it would be no different)
-``` markdown
-# !/Product link/!
-http://redbubble.com/DanielTamkin
+__Markdown__:
+``` html
+# !/Store link/!
+http://store.roosterteeth.com/
 ```
-Run Glean:
+__Plain Text__:
+``` html
+!/Store link/! "http://store.roosterteeth.com/" 
+```
 
+__Get a variable:__
 
+It's seriously simple to grab a variable.
 ```javascript
 var link = null;
-var html = $("section.html").Glean({
+var html = $("section.store-description").Glean({
   onStart: function(){
     // do something on start
   },
   onDone: function(data){
     // do something after render.
     // like so:
-    link = data.get('Product Link');
+    link = data.get('Store Link');
   }
 });
 ```
-
 
 And now you can simply grab the variable in two ways:
 

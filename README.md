@@ -23,7 +23,7 @@ http://store.roosterteeth.com/
 ```
 __Plain Text__:
 ``` html
-!/Store link/! "http://store.roosterteeth.com/" 
+!/Store link/! "http://store.roosterteeth.com/"
 ```
 
 __Get a variable:__
@@ -43,23 +43,6 @@ var html = $("section.store-description").Glean({
 });
 ```
 
-And now you can simply grab the variable in two ways:
-
-Method 1:
-`var productLink = html.get("Product Link");`
-
-
-Method 2:
-```javascript
-var html = $("section.html").Glean({
-  onStart: function(){
-    // do something on start
-  },
-  onDone: function(data){
-    var productLink = data.productlink;
-  }
-});
-```
 ## Settings
 ``` javascript
 var html = $("section.html").Glean({

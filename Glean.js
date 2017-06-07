@@ -4,9 +4,7 @@
     var defaults = {
       content: this,
       html: {
-        stash: "glean-data-stash",
         find: "h1, h2, h3, h4, h5, h6",
-        gather: "glean-gather"
       },
       syntax: {
         opening: "!/",
@@ -20,15 +18,8 @@
     $settings      = $.extend(true,{},defaults , options);
     $variables     = {};
     $this          = this;
-    /*
-    pluginHead
-     Catagorized into two sections based on how the plugin should
-     consume data to return values.
-     */
+
     $run = {
-      getVariables: function(){
-        return $variables;
-      },
       varLoad: function(data){
         var dfd = jQuery.Deferred();
         varLoad(function(){
@@ -94,8 +85,10 @@
               var message = {
                 message: "Compiled syntax in HTML"
               }
+              console.log(response.broken);
+              data.broken    = response.broken;
               data.variables = response.variables;
-              data.logs = logAdd(data.logs,message);
+              data.logs      = logAdd(data.logs,message);
               dfd.resolve(data);
             }
             else{
@@ -103,7 +96,8 @@
                 message: "No syntax in HTML",
                 details: response.error
               }
-              data.logs = logAdd(data.logs,message);
+              data.broken = response.broken;
+              data.logs   = logAdd(data.logs,message);
               dfd.resolve(data);
             }
           })
@@ -113,25 +107,27 @@
       stash: {
         create: function(data){
           var dfd = jQuery.Deferred();
-          htmlStash(function(){
-            var message = {
-              message: "Creating a div called #"+$settings.html.stash+" to stash all data found."
-            }
-            data.logs = logAdd(data.logs,message);
-            dfd.resolve(data);
-          });
+          var message = {
+            message: "Object Created to stash all variables found."
+          }
+          data.stash  = [];
+          data.logs   = logAdd(data.logs,message);
+          dfd.resolve(data);
           return dfd.promise();
         },
         add: function(data){
           var dfd = jQuery.Deferred();
-          if(data.variables.length !== 0){
-            htmlStashAdd(data.variables,function(response){
-              var message = {
+          console.log(data.variables);
+          if(data.variables !== undefined){
+            htmlStashAdd(data.variables,data.stash,function(response){
+              var message   = {
                 message: "Adding variables to the data stash",
                 details: data.variables.length+" Variables added"
               }
               data.variables = [];
-              data.logs = logAdd(data.logs,message);
+              data.stash     = response;
+              $variables     = response;
+              data.logs      = logAdd(data.logs,message);
               dfd.resolve(data);
             });
           }
@@ -146,17 +142,45 @@
           }
           return dfd.promise();
         },
-        grab: function(data){
+        get: function(data){
           var dfd = jQuery.Deferred();
+          /**
+           * Pretty sweet little function here.
+           * Either just blissfully grab the value of a variable
+           * or return a callback and allow futher testing if a variable exists.
+           * @type {Object}
+           */
+          data.functions = {
+            get: function(key,callback){
+              var find = '';
+              if(callback !== undefined){
+                stashFind(key,data.stash,function(value){
+                  find = value;
+                });
+                if(find !== undefined){
+                  callback(find);
+                }
+                else{
+                  callback();
+                }
+              }
+              else{
+                stashFind(key,data.stash,function(value){
+                  find = value;
+                });
+                return find;
+              }
+            }
+          }
           dfd.resolve(data);
           return dfd.promise();
         }
       }
     }
     /*
-     Public functions
+     build function
     */
-    this.build = function(){
+    function build(){
       var dfd = jQuery.Deferred();
       $settings.onStart();
       runStart({
@@ -172,45 +196,27 @@
         .then($run.stash.add)
         .then($run.compile.text)
         .then($run.stash.add)
-        .then($run.stash.grab)
+        .then($run.stash.get)
         .done(function(response){
-          console.log('taht');
-          console.log(response.logs);
-          dfd.resolve();
+          console.log(response.stash);
+          dfd.resolve(response.functions);
         })
         .fail(function(logs){
-          console.log(logs);
-          console.log('fail');
           dfd.reject();
         });
       return dfd.promise();
     };
-    function runStart(log){
+    function runStart(data){
       var dfd = jQuery.Deferred();
-      dfd.resolve(log);
+      dfd.resolve(data);
       return dfd.promise();
     }
     /**
-     * Get a variable specified.
-     * @param  {[String]}   [variables title/key]
-     * @return {[type]}     [The variables value]
+     * [compileText description]
+     * @param  {Function} callback
+     * @return {[type]}            [description]
      */
-    this.get = function(variable){
-      return getVariable(variable);
-    }
-    /*
-     Private functions
-    */
-    function getVariable(variable){
-      if(variable != undefined){
-  			return htmlFind(htmlSlugify(variable));
-  		}
-  		else{
-  			return undefined;
-  		}
-    }
     function compileText(callback){
-      console.log(101);
       var response   = {
         found: false,
         error: '',
@@ -220,19 +226,17 @@
       }
       var selector = $this.selector+" ."+$settings.html.stash;
       var textwHTML = $this.html();
-      var textnHTML = $this.html();
-      textnHTML     = textnHTML.replace($(selector).html(), '');
-      console.log(textnHTML);
+      var textnHTML = $this.text();
+      // textnHTML     = textnHTML.replace($(selector).html(), '');
       syntaxCount(textnHTML,function(count){
+        console.log(count);
         if(count !== 0){
           for (var i = 0; i < count; i++) {
             syntaxGrab(textwHTML,function(data){
-              console.log(data);
               textwHTML = textwHTML.replace(data.syntax, '');
               response.variables.push({key:data.key,value:data.value});
             });
           }
-          console.log(textwHTML);
           response.found = true;
         }
         else{
@@ -240,50 +244,140 @@
         }
       });
       $($this).html(textwHTML);
-      console.log(response.variables);
       // make the error code a little bit more digestable.
       response.error = compileError(response);
       callback(response);
     }
+    /**
+     * Counts the ammount of times full syntax is found in the text
+     * @param  {[type]}   text
+     * @param  {Function} callback
+     * @param  {[type]}   count
+     * @return {[type]}            [description]
+     */
+     function syntaxCount(text,callback,count){
+       console.log(text);
+       if(count == undefined){
+         count = 0;
+       }
+       if(text.indexOf($settings.syntax.opening) > 0  && text.indexOf($settings.syntax.closing) > 0){
+         var SyntaxOpening     = text.indexOf($settings.syntax.opening);
+         console.log(SyntaxOpening);
+         if(count == 0 && SyntaxOpening !== 0){
+           var SyntaxClosing     = text.indexOf("\"", text.indexOf("\"")+1)+1;
+           var Syntax            = text.substring(1, SyntaxClosing);
+           text                  = text.replace(Syntax, '');
+           SyntaxOpening         = text.indexOf($settings.syntax.opening);
+         }
+         else{
+           var SyntaxClosing     = text.indexOf("\"", text.indexOf("\"")+1)+1;
+           var Syntax            = text.substring(SyntaxOpening, SyntaxClosing);
+         }
+         text                  = text.replace(Syntax, '');
+         count++;
+         syntaxCount(text,callback,count);
+       }
+       else{
+         callback(count);
+       }
+     }
+    /**
+     * [syntaxGrab description]
+     * @param  {[type]}   text
+     * @param  {Function} callback
+     * @param  {[type]}   syntax
+     * @return {[type]}            [description]
+     */
+    function syntaxGrab(text,callback,variables){
+      var data = {
+        key: '',
+        value: '',
+        syntax: '',
+        error: false,
+        incomplete: 0
+      };
+      var SyntaxOpening     = text.indexOf($settings.syntax.opening);
+      var SyntaxClosing     = text.indexOf("\"", text.indexOf("\"")+1)+1;
+      var Syntax            = text.substring(SyntaxOpening, SyntaxClosing);
+      syntaxValidate(Syntax,function(code){
+        console.log(code);
+      });
+      if(text.indexOf($settings.syntax.opening) && text.indexOf($settings.syntax.closing)){
+        var SyntaxOpening     = text.indexOf($settings.syntax.opening);
+        var SyntaxClosing     = text.indexOf("\"", text.indexOf("\"")+1)+1;
+        var Syntax            = text.substring(SyntaxOpening, SyntaxClosing);
+        console.log(Syntax);
+
+        var indexKeyOpening   = Syntax.indexOf($settings.syntax.opening)+$settings.syntax.opening.length;
+        var indexKeyClosing   = Syntax.indexOf($settings.syntax.closing);
+        var indexKeyData      = Syntax.substring(indexKeyOpening, indexKeyClosing);
+        var textRemovedKey    = Syntax.substring(indexKeyClosing);
+        var indexValueOpening = textRemovedKey.indexOf("\"")+1;
+        var indexValueClosing = textRemovedKey.indexOf("\"", textRemovedKey.indexOf("\"")+1);
+        var indexValueData    = textRemovedKey.substring(indexValueOpening, indexValueClosing);
+        data.key    = indexKeyData;
+        data.value  = indexValueData;
+        data.syntax   = Syntax;
+        data.syntax   = data.syntax.trim();
+      }
+      else{
+        data.syntax = text.replace($settings.syntax.opening,'');
+        data.syntax = text.replace($settings.syntax.closing,'');
+        data.syntax = text;
+        data.error = true;
+      }
+      callback(data);
+    }
+    /**
+     * [compileHTML description]
+     * @param  {Function} callback
+     * @return {[type]}            [description]
+     */
     function compileHTML(callback){
-      console.log(101);
       var response   = {
         found: false,
         error: '',
         incomplete: 0,
         text: '',
-        variables: []
+        variables: [],
+        broken: []
       }
   		$this.find($settings.html.find).each(function(i, node) {
-        console.log($(node).text());
-        syntaxValidate($(node).text(),function(valid){
-          if(valid){
-            var variable = {
-              key:variableSlugify($(node).text()),
-              value: $(node).next().html()
-            }
-            // sanatization services
-            $(node).next().remove();
-            $(node).remove();
+        syntaxValidate($(node).text(),function(code){
+          if(code == 1){
+            syntaxRemove($(node).text(),function(syntaxClean){
+              var variable = {
+                key:syntaxClean,
+                value: $(node).next().html()
+              }
+              // sanatization services
+              $(node).next().remove();
+              $(node).remove();
 
-            response.variables.push(variable);
-            response.found = true;
+              response.found = true;
+              response.variables.push(variable);
+            });
           }
           else{
+            console.log('101');
+            var variable = {
+              key:$(node).text(),
+              error: compileError({code: code,incomplete:1})
+            }
+            console.log(variable);
+            response.broken.push(variable);
             if($settings.hideOnBroken){
               $(node).css("visibility","hidden");
               $(node).next().css("visibility","hidden");
             }
             else{
-              syntaxRemove(syntax,function(syntaxClean){
-                console.log(syntaxClean);
+              syntaxRemove($(node).text(),function(syntaxClean){
                 if(syntaxClean){
-                  $(node).text(syntaxClean);
                   response.incomplete++;
+                  $(node).text(syntaxClean);
                 }
               });
             }
-            console.log(valid);
           }
         });
       });
@@ -291,102 +385,79 @@
       response.error = compileError(response);
       callback(response);
     }
-    function compileError(response){
-      console.log(response.incomplete);
-      if(response.incomplete){
-        response.error = "incomplete syntax detected. ";
-        if($settings.hideOnBroken){
-          response.error += "They've been hidden from view.";
-        }
-        else if(response.incomplete <= 2){
-          response.error += "They've been removed of incomplete syntax.";
-        }
-      }
-      else if(response.incomplete >= 2){
-        response.error = ""+response.incomplete+" variables with incomplete syntax. ";
-        if($settings.hideOnBroken){
-          response.error += "They've been hidden from view.";
-        }
-        else if(response.incomplete <= 2){
-          response.error += "They've been removed of incomplete syntax.";
-        }
-      }
-      else{
-        response.error = "Have no fear, we will perform sanatization services.";
-      }
-
-      return response.error;
-    }
     /**
-     * Checks that each $settings.html.find has an id that
-     * is a slugged version of its data, if it does not then make it
-     * have one.
-     * @param  {Function} callback [called at end of function]
+     * Validates the syntax of a $settings.html.find by
+     * determining that it has the intended opening syntax($settings.syntax.opening)
+     * and closing syntax($settings.syntax.closing)
+     * @param  {[syntax]}   string   [the syntax in question]
+     * @param  {[callback]} variable [Hand this string]
+     * @callback {[true/false]}      [true if valid, false if not]
      */
-    function htmlIdSlugify(callback){
-      var	content		  = $(this).html();
-      var count       = 0;
-      $this.find($settings.html.find).each(function(i, node) {
-        var data 			= htmlSlugify($(this).text()),
-            id 				= $(this).attr("id");
-        if(data != id){
-          $(this).removeAttr("id");
-          $(this).attr("id",data);// re inits the new id
+    function syntaxValidate(syntax,callback){
+  		if(syntax.indexOf($settings.syntax.opening) == 0){
+        // has both opening and closing braces
+  			if(syntax.lastIndexOf($settings.syntax.closing) == syntax.length - $settings.syntax.closing.length){
+  				callback(1);
+  			}
+  			else{
+  				callback(2);// has only opening syntax
+  			}
+  		}
+  		else{
+        // has only closing brace but no opening brace
+  			if(syntax.lastIndexOf($settings.syntax.closing) == syntax.length - $settings.syntax.closing.length){
+  				callback(3)// has only closing syntax
+  			}
+  			else{
+  				callback(false)// no syntax detected
+  			}
+  		}
+  	}
+    /**
+     * Return a clean and consice error message
+     * @param  {[type]} response
+     * @return {[type]}          [description]
+     */
+    function compileError(response){
+      if(response.incomplete !== 1){
+        response.error = ""+response.incomplete+" variables with broken syntax.";
+        if($settings.hideOnBroken){
+          response.error += "They've been hidden from view.";
         }
         else{
-          // has id already
+          response.error += "They've been removed of broken syntax.";
         }
-        count++;
-      });
-      console.log(count);
-      if(count !== 0){
-        callback();
+        return response.error;
       }
       else{
-        callback("No search objects: '"+$settings.html.find+"' we're found.");
+        response.error = "Syntax was found broken. ";
+        if(response.code = 2){
+          response.error += "Closing brace missing.";
+        }
+        else{
+          response.error += "Opening brace missing.";
+        }
+        return response.error;
       }
-    }
-    /**
-     * Slugs whatever variable is handed to it.
-     * @param  {[String]} variable [Hand this string]
-     * @return {[type]}          [A slugged version of the @param]
-     */
-    function htmlSlugify(variable){
-      return variable.replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, '-').toLowerCase();
     }
     /**
      * [htmlStashAdd description]
      * @param  {[type]} variables
      * @return {[type]}           [description]
      */
-    function htmlStashAdd(variables,callback){
+    function htmlStashAdd(variables,stash,callback){
       var selector = $this.selector+" ."+$settings.html.stash;
-      console.log($this);
-      console.log(selector);
+      var latest   = variables.length;
       for (var i = 0; i < variables.length; i++) {
-        var key   = {
-          data: $settings.syntax.opening+variables[i].key+$settings.syntax.closing,
-          style:"\"display:none;\"",
-          class: "\"glean-key\""
-        };
-        var value = {
-          data: variables[i].value,
-          style:"\"display:none;\"",
-          class: "\"glean-value\""
-        };
-        var add = "<h1 class="+key.class+" style="+key.style+">"+key.data+"</h1>"
-                + "<p class="+value.class+" style="+value.style+">"+value.data+"</p>";
-        $(selector).add(add).appendTo(selector);
+        variables[i].key = variableSlugify(variables[i].key);
+        if(stash.length !== 0){
+          stash.push(variables[i]);
+        }
+        else{
+          stash[0] =variables[i];
+        }
       }
-      callback();
-    }
-    /*
-    * Appends a stashed version of the html that we will touch,
-    * we do this so we can scrub the visible html of any variables immediatly.
-     */
-    function htmlStash(callback){
-      $($this).add("<div class=\""+$settings.html.stash+"\" style=\"display:none;\"></div>").appendTo($this);
-      callback();
+      callback(stash);
     }
     /**
      * Find and return the value of a variable
@@ -404,7 +475,11 @@
   			return data.trim();// removes whitespaces
   		}
   	}
-    // variables
+    /**
+     * [varLoad description]
+     * @param  {Function} callback
+     * @return {[type]}            [description]
+     */
     function varLoad(callback){
       $(".glean-gather").each(function(i,node){
         if($(this).hasClass('glean-key')){
@@ -415,44 +490,45 @@
       callback();
     }
     /**
+     * Finds the correct variable in the stack and returns
+     * its value.
+     * @param  {[type]}   key
+     * @param  {[type]}   stash
+     * @param  {Function} callback
+     * @return {[type]}   found variables value
+     */
+    function stashFind(key,stash,callback){
+      let value = '';
+      for (var i = 0; i < stash.length; i++) {
+        if(stash[i].key == variableSlugify(key)){
+          value = stash[i].value;
+        }
+      }
+      callback(value);
+    }
+    function stashFindBroken(key,stash,callback){
+      let value = '';
+      for (var i = 0; i < stash.length; i++) {
+        if(stash[i].key == variableSlugify(key)){
+          value = stash[i].value;
+        }
+      }
+      callback(value);
+    }
+    /**
      * Slugs whatever variable is handed to it.
      * @param  {[String]} variable [Hand this string]
      * @return {[type]}          [A slugged version of the @param]
      */
     function variableSlugify(variable){
-      return variable.replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, '').toLowerCase();
+      return variable.replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, '-').toLowerCase();
     }
-    // syntax
     /**
-     * Gathers all Validated variables and shoots them to a hidden
-     * div for future use.
-     * @return {[Promise]}          [returns promise for procedure list]
+     * Does a quick scan if any syntax is in text, if there is
+     * then there is a possibility that valid syntax is present.
+     * @param  {Function} callback
+     * @return {[type]}            [description]
      */
-    function stashPopulate(){
-      var dfd = jQuery.Deferred();
-      var found = false;
-  		syntaxParseHTML(function(syntax){
-        console.log(syntax);
-        found = syntax.found;
-        if(syntax.found){
-    			$(".glean-gather").each(function(i,node){
-    				$this.find("#"+$settings.html.stash).append($(this));//populate
-    			});
-          if(syntax.error !== undefined){
-            dfd.resolve(syntax.error);
-          }
-          else{
-            dfd.resolve();
-          }
-    		}
-    		else{
-          console.log('101');
-    			// dont do anything. You cant, no variables.
-          dfd.reject(syntax.error);
-    		}
-      });
-      return dfd.promise();
-  	}
     function variablesSearch(callback){
       var text = $this.text();
       if(text.indexOf($settings.syntax.opening) > 0  && text.indexOf($settings.syntax.closing) > 0){
@@ -462,223 +538,12 @@
         callback(true);
       }
     }
-    function textToHTML(variables,callback){
-      console.log(variables);
-      for (var i = 0; i < variables.length; i++) {
-        var key   = $settings.syntax.opening+variables[i].key+$settings.syntax.closing;
-        var value = variables[i].value;
-        $($this).add("<h1 style=\"display:none;\">"+key+"</h1> <p style=\"display:none;\">"+value+"</p>").appendTo($this);
-      }
-      callback();
-    }
     /**
-     * [syntaxParseText description]
-     * @param  {Function} callback
-     * @return {[type]}            [description]
-     */
-    function syntaxParseText(callback){
-      var dfd = jQuery.Deferred();
-      var message = {
-        found: false,
-        incomplete: 0,
-        error: ''
-      };
-      var variables = [];
-      // console.log($this.text());
-      syntaxCount($this.text(),function(count){
-        var text  = $this.text();
-        if(count !== 0){
-          for (var i = 0; i < count; i++) {
-            syntaxGrab(text,function(data){
-              // console.log(data);
-              text = data.text;
-              text = text.replace(Syntax, '');
-              variables.push({key:data.key,value:data.value});
-            });
-          }
-          console.log(count);
-          $this.text(text);
-          dfd.resolve(variables);
-        }
-        else{
-          dfd.reject("No syntax Detected. ");
-        }
-      });
-      // console.log(syntaxCount($this.text(),0));
-      console.log(variables);
-      return dfd.promise();
-    }
-    /**
-     * [syntaxCount description]
-     * @param  {[type]}   text
-     * @param  {Function} callback
-     * @param  {[type]}   count
-     * @return {[type]}            [description]
-     */
-    function syntaxCount(text,callback,count){
-      if(count == undefined){
-        count = 0;
-      }
-      if(text.indexOf($settings.syntax.opening) > 0  && text.indexOf($settings.syntax.closing) > 0){
-        var SyntaxOpening     = text.indexOf($settings.syntax.opening);
-        var SyntaxClosing     = text.indexOf("\"", text.indexOf("\"")+1)+1;
-        var Syntax            = text.substring(SyntaxOpening, SyntaxClosing);
-        text                  = text.replace(Syntax, '');
-        count++;
-        syntaxCount(text,callback,count);
-      }
-      else{
-        callback(count);
-      }
-    }
-    /**
-     * [syntaxGrab description]
-     * @param  {[type]}   text
-     * @param  {Function} callback
+     * Removes all reminants of syntax from text.
      * @param  {[type]}   syntax
+     * @param  {Function} callback
      * @return {[type]}            [description]
      */
-    function syntaxGrab(text,callback,variables){
-      // console.log(variables);
-      // console.log(text);
-      var data = {
-        key: '',
-        value: '',
-        syntax: '',
-        error: false,
-        incomplete: 0
-      };
-      if(text.indexOf($settings.syntax.opening) && text.indexOf($settings.syntax.closing)){
-        var SyntaxOpening     = text.indexOf($settings.syntax.opening);
-        var SyntaxClosing     = text.indexOf("\"", text.indexOf("\"")+1)+1;
-
-        var Syntax            = text.substring(SyntaxOpening, SyntaxClosing);
-
-        var indexKeyOpening   = Syntax.indexOf($settings.syntax.opening)+$settings.syntax.opening.length;
-        var indexKeyClosing   = Syntax.indexOf($settings.syntax.closing);
-        var indexKeyData      = Syntax.substring(indexKeyOpening, indexKeyClosing);
-
-        var textRemovedKey    = Syntax.substring(indexKeyClosing);
-
-        var indexValueOpening = textRemovedKey.indexOf("\"")+1;
-        var indexValueClosing = textRemovedKey.indexOf("\"", textRemovedKey.indexOf("\"")+1);
-        var indexValueData    = textRemovedKey.substring(indexValueOpening, indexValueClosing);
-        data.key    = indexKeyData;
-        data.value  = indexValueData;
-        data.syntax   = Syntax;
-        data.syntax   = data.syntax.trim();
-        console.log(data.syntax);
-        // console.log(indexKeyOpening);
-        // console.log(indexKeyClosing);
-        // console.log("Syntax: "+Syntax);
-        // console.log("That: "+textRemovedKey);
-        // console.log("key: "+indexKeyData);
-        // console.log("value: "+indexValueData);
-        // console.log(indexValueOpening);
-        // console.log(indexValueClosing);
-      }
-      else{
-        data.syntax = text.replace($settings.syntax.opening,'');
-        data.syntax = text.replace($settings.syntax.closing,'');
-        data.syntax = text;
-        data.error = true;
-      }
-      callback(data);
-    }
-    /**
-     * tags all variables that are valid with the Class '$settings.html.gather'
-     * @param  {[callback]} function [ran with either true or false on the
-     *                               possibilities]
-     * @callback {[true/false]} [true if there is syntax, false if there is not.]
-     */
-  	function syntaxParseHTML(callback){
-  		var message = {
-        found: false,
-        incomplete: 0,
-        error: ''
-      };
-  		$this.find($settings.html.find).each(function(i, node) {
-        var syntax = $(node).text();
-        syntaxValidate(syntax,function(data){
-          if(data.valid == true){
-            $(node).removeClass("glean-possible");
-    				$(node).addClass($settings.html.gather).addClass('glean-key');
-    				$(node).next().addClass($settings.html.gather).addClass('glean-value');//capture that <p> tag
-    				message.found = true;
-    			}
-    			else{
-            // If there is no syntax make sure there isnt
-            // an incomplete bit of syntax. If there is remove it.
-            console.log('1');
-            if($settings.hideOnBroken){
-              $(node).css("visibility","hidden");
-              $(node).next().css("visibility","hidden");
-            }
-            else{
-              syntaxRemove(syntax,function(syntaxClean){
-                console.log(syntaxClean);
-                if(syntaxClean){
-                  $(node).text(syntaxClean);
-                  message.incomplete++;
-                }
-              });
-            }
-    			}
-        });
-  		});
-      // make the error code a little bit more digestable.
-      if(message.incomplete == 1){
-        message.error = "You have a variable with incomplete syntax. ";
-      }
-      else if(message.incomplete >= 2){
-        message.error = "You have "+message.incomplete+" variables with incomplete syntax. ";
-      }
-      if(message.found){
-        if($settings.hideOnBroken){
-          message.error += "All incomplete variables have been hidden.";
-        }
-        else if(message.incomplete >= 2){
-          message.error += "All incomplete syntax has been removed.";
-        }
-      }
-      else{
-        if($settings.hideOnBroken){
-          message.error += "The entire variable has been hidden.";
-        }
-        else{
-          message.error += "That syntax has been removed.";
-        }
-      }
-      callback(message);
-  	}
-    /**
-     * Validates the syntax of a $settings.html.find by
-     * determining that it has the intended opening syntax($settings.syntax.opening)
-     * and closing syntax($settings.syntax.closing)
-     * @param  {[syntax]}   string   [the syntax in question]
-     * @param  {[callback]} variable [Hand this string]
-     * @callback {[true/false]}      [true if valid, false if not]
-     */
-    function syntaxValidate(syntax,callback){
-  		if(syntax.indexOf($settings.syntax.opening) == 0){
-        // has both opening and closing braces
-  			if(syntax.lastIndexOf($settings.syntax.closing) == syntax.length - $settings.syntax.closing.length){
-  				callback(true);
-  			}
-  			else{
-  				callback(false);// errors in the syntax
-  			}
-  		}
-  		else{
-        // has closing brace but no opening brace
-  			if(syntax.lastIndexOf($settings.syntax.closing) == syntax.length - $settings.syntax.closing.length){
-  				callback(true)// errors in the syntax
-  			}
-  			else{
-  				callback(false)// no syntax detected
-  			}
-  		}
-  	}
     function syntaxRemove(syntax,callback){
       $reverse = {
         opening: $settings.syntax.opening.split("").reverse().join(""),
@@ -706,15 +571,8 @@
      * @param  {[type]} boolean
      * @return {[type]}         [description]
      */
-    // function callbackMessage(message,error){
-    //   return {
-    //     message: message,
-    //     error: boolean
-    //   }
-    // }
     function logAdd(logs,data){
       var newLog = logs;
-      console.log(logs);
       if(!data){
         // do nothing
       }
@@ -734,13 +592,12 @@
     }
     // Compile
     return $this.each(function() {
-      $this.build()
-        .done(function(logs){
-          $settings.onDone($run.getVariables());
+      build()
+        .done(function(data){
+          $settings.onDone(data);
         })
         .fail(function(logs){
-          // force plainText
-          $settings.onFail();
+          $settings.onFail(logs);
         });
     });
   };

@@ -1,3 +1,218 @@
+<section class="hero">
+  <div class="wrapper Container-Large">
+    <header class="title">
+      <h1>Glean</h1>
+      <h2>The variable compiler for html.</h2>
+      <div class="explore">
+        <div class="border"></div>
+        <p>Explore</p>
+      </div>
+    </header>
+  </div>
+</section>
+<section id="site-body" class="shim Container-Large">
+  <section class="align-left">
+    <section class="card a-right">
+      <header class="preview">
+
+      </header>
+      <section class="body">
+        <header>
+          <h1>Coastal Sundown</h1>
+          <h2>$25 - 20 in stock!</h2>
+        </header>
+        <p>
+          Taken on the outskirts of Winnipeg beach, Canada just before the sunset.
+        </p>
+      </section>
+    </section>
+    <div style="clear:both;"></div>
+  </section>
+  <section class="content align-right ">
+    <h1>First lets install it.</h1>
+    <div class="ghostb-cmd"> git clone <span>git://github.com/DanielTamkin/Glean.js.git</span></div>
+    <p>
+      Glean is a little ( ~ 5 KB ) jQuery reliant plugin that gives you the
+      power of variables where you wouldnt usually be able to get variables.
+      Namly places like <a href="#">ghost</a> or any markdown centric apps.
+    </p>
+    <h1>Okay, so what is it?</h1>
+    <p>
+      Its an incredibly simple, easy to implement jQuery plugin that gives you the ability
+      of using simple variables in your <a href="#">html</a> and or <a href="#">markdown</a>,
+      Think of it like sprinkling spicy pepper on an already
+      great meal.
+    </p>
+
+  </section>
+  <div style="clear:both;"></div>
+</section>
+<footer id="site-footer">
+  <div class="Container-Large">
+    <aside>
+      <h1>Glean</h1>
+    </aside>
+  </div>
+</footer>
+<script>
+$("section.hero .center").centerThis();
+$offset = $("section.hero").outerHeight()/1.6;
+$("section.shim").shimThis({
+  ontop: 'section.hero',
+  offset: $offset+'px'
+});
+</script>
+
+body{
+  background:#fff;
+  color:#273a34;
+  font-family:'WorkSans';
+}
+::-moz-selection { /* Code for Firefox */
+  color: #222;
+  background: #619dba;
+}
+::selection {
+    color: #222;
+    background: #619dba;
+}
+.animate *{
+  -webkit-transition: all 200ms ease-in-out;
+	-moz-transition: all 200ms ease-in-out;
+	-ms-transition: all 200ms ease-in-out;
+	-o-transition: all 200ms ease-in-out;
+	transition: all 200ms ease-in-out;
+}
+.animate.slow *{
+  -webkit-transition: all 300ms ease-in-out;
+	-moz-transition: all 300ms ease-in-out;
+	-ms-transition: all 300ms ease-in-out;
+	-o-transition: all 300ms ease-in-out;
+	transition: all 300ms ease-in-out;
+}
+a{
+  -webkit-transition: all 100ms ease-in-out;
+  -moz-transition: all 100ms ease-in-out;
+  -ms-transition: all 100ms ease-in-out;
+  -o-transition: all 100ms ease-in-out;
+  transition: all 100ms ease-in-out;
+}
+p a:hover{
+  background:rgba(92, 131, 150, 0.9);
+  -webkit-transition: all 100ms ease-in-out;
+  -moz-transition: all 100ms ease-in-out;
+  -ms-transition: all 100ms ease-in-out;
+  -o-transition: all 100ms ease-in-out;
+  transition: all 100ms ease-in-out;
+}
+p a{
+  padding:1px 3px;
+  box-sizing:border-box;
+  color:#0500ff;
+}
+/*> generals / contents*/
+  section.content{
+  }
+  section.content h1{
+    margin-bottom:0.6em;
+    color:#000;
+    text-transform:uppercase;
+    font-family:'Lato-Black';
+  }
+  section.content p{
+    margin:12px 0;
+    line-height:1.6;
+
+  }
+  section.content a{
+    font-weight:600;
+  }
+/*> hero*/
+  section.hero{
+    height:100%;
+    width:100%;
+    position:relative;
+  }
+  section.hero .wrapper{
+    height:100%;
+    width:100%;
+    /*background:rgba(95, 176, 191,0.4);*/
+    position:relative;
+  }
+  /*> title*/
+    header.title{
+      margin-top:3em;
+      padding:0.4em;
+      /*border:4px solid #000;*/
+      /*background:#000;*/
+      /*background:#1400b5;*/
+      box-sizing:border-box;
+      position:relative;
+      width:400px;
+    }
+    header.title h1{
+      position:;
+      color:#000;
+      text-transform:uppercase;
+      font-family:'WorkSans-Bold';
+    }
+    header.title h2{
+      line-height:1.4;
+    }
+    header.title .explore{
+      padding:0.6em 0.9em;
+      background:#1400b5;
+      box-sizing:border-box;
+
+      display:inline-block;
+      position:absolute;
+      bottom:-20px;
+      right:-30px;
+      color:#fff;
+    }
+    header.title .explore p{
+      position:relative;
+      z-index:1172;
+    }
+    header.title .explore .border{
+      box-sizing:border-box;
+      border:4px solid #1400b5;
+      height:100%;
+      width:100%;
+      z-index:1171;
+      position:absolute;
+      bottom:-7px;
+      right:-7px;
+    }
+  /*> body*/
+    #site-body{
+
+    }
+    #site-body .a-left{float:left;}
+    #site-body .a-right{float:right;}
+    #site-body .align-left{
+      padding:1em 3em;
+      box-sizing:border-box;
+      float:left;
+      width:54%;
+      /*background:rgb(96, 130, 182);*/
+    }
+    #site-body .align-right{
+      padding:0.6em;
+      box-sizing:border-box;
+      float:right;
+      width:46%;
+    }
+/*> #site-footer*/
+  #site-footer{
+    padding:1.6em;
+    box-sizing:border-box;
+    width:100%;
+    background:#52465b;
+  }
+
+
+
 <section class="card a-right">
   <header>
 

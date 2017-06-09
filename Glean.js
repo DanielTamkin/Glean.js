@@ -63,6 +63,7 @@
               var message = {
                 message: "Compiled syntax in plain text"
               }
+              data.broken = response.broken;
               data.variables = response.variables;
               data.logs = logAdd(data.logs,message);
               dfd.resolve(data);
@@ -85,7 +86,7 @@
               var message = {
                 message: "Compiled syntax in HTML"
               }
-              console.log(response.broken);
+              // console.log(response.broken);
               data.broken    = response.broken;
               data.variables = response.variables;
               data.logs      = logAdd(data.logs,message);
@@ -117,7 +118,7 @@
         },
         add: function(data){
           var dfd = jQuery.Deferred();
-          console.log(data.variables);
+          // console.log(data.variables);
           if(data.variables !== undefined){
             htmlStashAdd(data.variables,data.stash,function(response){
               var message   = {
@@ -228,10 +229,10 @@
       var textwHTML = $this.html();
       var textnHTML = $this.text();
       // textnHTML     = textnHTML.replace($(selector).html(), '');
-      syntaxCount(textnHTML,function(count){
-        console.log(count);
-        if(count !== 0){
-          for (var i = 0; i < count; i++) {
+      syntaxCount(textnHTML,function(dataCount){
+        // console.log(dataCount.count);
+        if(dataCount.count !== 0){
+          for (var i = 0; i < dataCount.count; i++) {
             syntaxGrab(textwHTML,function(data){
               textwHTML = textwHTML.replace(data.syntax, '');
               response.variables.push({key:data.key,value:data.value});
@@ -241,11 +242,16 @@
         }
         else{
           response.found = false;
+          if(dataCount.error){
+            response.error = "Syntax errors found in plain-text, rejecting compiling any plain-text.";
+          }
+          else{
+            // make the error code a little bit more digestable.
+            response.error = compileError(response);
+          }
         }
       });
       $($this).html(textwHTML);
-      // make the error code a little bit more digestable.
-      response.error = compileError(response);
       callback(response);
     }
     /**
@@ -255,48 +261,33 @@
      * @param  {[type]}   count
      * @return {[type]}            [description]
      */
-     function syntaxCount(text,callback,count){
-      //  console.log(text);
+     function syntaxCount(text,callback,count,error){
        if(count == undefined){
          count = 0;
        }
        if(text.indexOf($settings.syntax.opening) > 0  && text.indexOf($settings.syntax.closing) > 0){
-         var SyntaxOpening       = text.indexOf($settings.syntax.opening);
-         console.log(SyntaxOpening);
-         var syntaxChunkStart       = text.indexOf($settings.syntax.opening);
-         var syntaxChunkEnd         = text.indexOf($settings.syntax.closing);
-         var syntaxChunk            = text.substring(syntaxChunkEnd,syntaxChunkStart);
-         console.log(syntaxChunk);
-         // console.log(text.indexOf($settings.syntax.opening));
-         // console.log(text.indexOf($settings.syntax.closing));
+         var SyntaxOpening          = text.indexOf($settings.syntax.opening);
+             syntaxChunkStart       = text.indexOf($settings.syntax.opening),
+             syntaxChunkEnd         = text.indexOf($settings.syntax.closing),
+             syntaxChunk            = text.substring(syntaxChunkEnd,syntaxChunkStart);
+         // is there an error in the syntax?
          if(syntaxChunk.indexOf($settings.syntax.opening) == -1  && syntaxChunk.indexOf($settings.syntax.closing < 0) == -1){
            var Syntax            = text.replace($settings.syntax.opening,'');
                Syntax            = text.replace($settings.syntax.opening,'');
-               console.log(Syntax);
-           console.log('invalid syntax: ');
-           text                  = Syntax;
+           error = true;
+           text  = Syntax;
            count = 0;
          }
          else{
            var SyntaxClosing     = text.indexOf("\"", text.indexOf("\"")+1)+1;
            var Syntax            = text.substring(SyntaxOpening, SyntaxClosing);
-           console.log('valid syntax');
-           text                  = text.replace(Syntax, '');
+           text  = text.replace(Syntax, '');
            count++;
          }
-        //  console.log(syntaxChunk);
-        //  if(count == 0 && SyntaxOpening !== 0){
-        //    var SyntaxClosing     = text.indexOf("\"", text.indexOf("\"")+1)+1;
-        //    var Syntax            = text.substring(1, SyntaxClosing);
-        //    text                  = text.replace(Syntax, '');
-        //    SyntaxOpening         = text.indexOf($settings.syntax.opening);
-        //  }
-        //  else{
-        //  }
-         syntaxCount(text,callback,count);
+         syntaxCount(text,callback,count,error);
        }
        else{
-         callback(count);
+         callback({count: count, error: error});
        }
      }
     /**
@@ -361,12 +352,6 @@
         broken: []
       }
   		$this.find($settings.html.find).each(function(i, node) {
-        console.log('------------------------------------');
-        var text                   = $(node).text();
-        console.log("Diffrence: "+text);
-
-        console.log('---------------------------------------------------');
-        // console.log($settings.syntax.opening.length);
         syntaxValidate($(node).text(),function(code){
           if(code == 1){
             syntaxRemove($(node).text(),function(syntaxClean){

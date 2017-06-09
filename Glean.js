@@ -256,25 +256,43 @@
      * @return {[type]}            [description]
      */
      function syntaxCount(text,callback,count){
-       console.log(text);
+      //  console.log(text);
        if(count == undefined){
          count = 0;
        }
        if(text.indexOf($settings.syntax.opening) > 0  && text.indexOf($settings.syntax.closing) > 0){
-         var SyntaxOpening     = text.indexOf($settings.syntax.opening);
+         var SyntaxOpening       = text.indexOf($settings.syntax.opening);
          console.log(SyntaxOpening);
-         if(count == 0 && SyntaxOpening !== 0){
-           var SyntaxClosing     = text.indexOf("\"", text.indexOf("\"")+1)+1;
-           var Syntax            = text.substring(1, SyntaxClosing);
-           text                  = text.replace(Syntax, '');
-           SyntaxOpening         = text.indexOf($settings.syntax.opening);
+         var syntaxChunkStart       = text.indexOf($settings.syntax.opening);
+         var syntaxChunkEnd         = text.indexOf($settings.syntax.closing);
+         var syntaxChunk            = text.substring(syntaxChunkEnd,syntaxChunkStart);
+         console.log(syntaxChunk);
+         // console.log(text.indexOf($settings.syntax.opening));
+         // console.log(text.indexOf($settings.syntax.closing));
+         if(syntaxChunk.indexOf($settings.syntax.opening) == -1  && syntaxChunk.indexOf($settings.syntax.closing < 0) == -1){
+           var Syntax            = text.replace($settings.syntax.opening,'');
+               Syntax            = text.replace($settings.syntax.opening,'');
+               console.log(Syntax);
+           console.log('invalid syntax: ');
+           text                  = Syntax;
+           count = 0;
          }
          else{
            var SyntaxClosing     = text.indexOf("\"", text.indexOf("\"")+1)+1;
            var Syntax            = text.substring(SyntaxOpening, SyntaxClosing);
+           console.log('valid syntax');
+           text                  = text.replace(Syntax, '');
+           count++;
          }
-         text                  = text.replace(Syntax, '');
-         count++;
+        //  console.log(syntaxChunk);
+        //  if(count == 0 && SyntaxOpening !== 0){
+        //    var SyntaxClosing     = text.indexOf("\"", text.indexOf("\"")+1)+1;
+        //    var Syntax            = text.substring(1, SyntaxClosing);
+        //    text                  = text.replace(Syntax, '');
+        //    SyntaxOpening         = text.indexOf($settings.syntax.opening);
+        //  }
+        //  else{
+        //  }
          syntaxCount(text,callback,count);
        }
        else{
@@ -343,6 +361,12 @@
         broken: []
       }
   		$this.find($settings.html.find).each(function(i, node) {
+        console.log('------------------------------------');
+        var text                   = $(node).text();
+        console.log("Diffrence: "+text);
+
+        console.log('---------------------------------------------------');
+        // console.log($settings.syntax.opening.length);
         syntaxValidate($(node).text(),function(code){
           if(code == 1){
             syntaxRemove($(node).text(),function(syntaxClean){

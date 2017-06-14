@@ -1,4 +1,5 @@
 (function($){
+  // Written By Daniel Tamkin. github.com/danieltamkin, danieltamkin.com
   $.fn.Glean = function(options){
     var defaults = {
       content: this,
@@ -16,7 +17,6 @@
     };
     /* * * Globals * * */
     $settings       = $.extend(true,{},defaults , options);
-    $current        = '';
     /* * *   Run   * * */
     $run = {
       compile: {
@@ -96,18 +96,19 @@
         .then($run.compile.errorPass)
         .then($run.functions)
         .done(function(data){
+          buildEnd(data);
           callback(false,data);
         })
         .fail(function(data){
+          buildEnd(data);
           callback(data.error);
         });
     }
     function buildStart(thisCurrent){
-      $current = thisCurrent;
+      $settings.onStart();
       var dfd = $.Deferred();
       dfd.resolve({
         this: thisCurrent,
-        stash: [],
         error: '',
         details: {
           found: false,
@@ -123,7 +124,26 @@
       return dfd.promise();
     }
     function buildEnd(data){
-
+      var timeStart = new Date(data.logs[0].time).getMilliseconds();
+      var timeEnd   = new Date($.now()).getMilliseconds();
+      var diffrence = timeStart-timeEnd;
+      var message   = "Glean ";
+      if(data.variables.length > 0 && data.details.found == true && data.details.broken.length == 0){
+        if(data.variables.length == 1)
+          message += "compiled a variable in "+diffrence+" miliseconds.";
+        else
+          message += "compiled "+data.variables.length+" variables in "+diffrence+" miliseconds.";
+      }
+      else if(data.variables.length > 0 && data.details.broken.length > 0 && data.details.found == true) {
+        message   += "found variable syntax errors; Valid syntax compiled successfully."
+      }
+      else if(data.variables.length > 0 && data.details.broken.length > 0) {
+        message   += "found plain-text syntax errors, HTML variables only compiled."
+      }
+      else{
+        message   += "Found no syntax to compile."
+      }
+      console.log(message);
     }
     /**
      * Finds the correct variable in the variable list
@@ -282,7 +302,7 @@
      * @return {[String]}           the full error described
      */
     function compileHTMLError(response){
-      if(response.incomplete !== 1){
+      if(response.incomplete > 1){
         response.error = ""+response.incomplete+" variables with broken syntax.";
         if(!($settings.hideBroken)){
           response.error += "They've been hidden from view.";
@@ -292,7 +312,7 @@
         }
         return response.error;
       }
-      else{
+      else if(response.incomplete == 1){
         response.error = "Syntax is";
         if($settings.hideBroken){
           response.error += " hidden, ";
@@ -307,6 +327,9 @@
           response.error += "Closing brace is missing.";
         }
         return response.error;
+      }
+      else{
+        return undefined;
       }
     }
     /* * * compile:Text * * */
@@ -435,15 +458,10 @@
       // console.log($(node));
       build($(this),function(error,data){
         if(error==false) {
-          console.log(i+':----------');
           $settings.onDone(data.functions);
-          console.log('-----------:'+i+'\n');
         }
         else{
-          console.log(i+':----------');
-          console.log(error);
           $settings.onFail(error);
-          console.log('-----------:'+i+'\n');
         }
       });
     });

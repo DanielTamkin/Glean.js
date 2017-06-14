@@ -60,30 +60,7 @@
          * if a variable exists.
          * @type {Object}
          */
-        data.functions = {
-          get: function(key,callback){
-            if(callback !== undefined){
-              stashFind(key,data.variables,function(value){
-                if(value !== undefined){
-                  callback(value);
-                }
-                else{
-                  stashFindBroken(key,data.details.broken,function(error){
-                    if(error !== undefined)
-                      callback(false,error)
-                    else
-                      callback(false,"No variables with that name");
-                  });
-                }
-              });
-            }
-            else{
-              stashFind(key,data.variables,function(value){
-                return value;
-              });
-            }
-          }
-        };
+        data.functions = returnFunctions(data);
         dfd.resolve(data);
         return dfd.promise();
       }
@@ -105,13 +82,12 @@
         });
     }
     function buildStart(thisCurrent){
-      $settings.onStart();
-      var dfd = $.Deferred();
-      dfd.resolve({
+      var dfd   = $.Deferred();
+      var data  = {
         this: thisCurrent,
-        error: '',
+        error: undefined,
         details: {
-          found: false,
+          pass: true,
           broken: []
         },
         variables: [],
@@ -120,7 +96,9 @@
               message:'Starting a new glean instance.',
               time: $.now()
         }]
-      });
+      };
+      dfd.resolve(data);
+      $settings.onStart(returnFunctions(data).that());
       return dfd.promise();
     }
     function buildEnd(data){
@@ -128,22 +106,53 @@
       var timeEnd   = new Date($.now()).getMilliseconds();
       var diffrence = timeStart-timeEnd;
       var message   = "Glean ";
-      if(data.variables.length > 0 && data.details.found == true && data.details.broken.length == 0){
+      if(data.variables.length > 0 && data.details.pass == true && data.details.broken.length == 0){
         if(data.variables.length == 1)
           message += "compiled a variable in "+diffrence+" miliseconds.";
         else
           message += "compiled "+data.variables.length+" variables in "+diffrence+" miliseconds.";
       }
-      else if(data.variables.length > 0 && data.details.broken.length > 0 && data.details.found == true) {
+      else if(data.variables.length > 0 && data.details.broken.length > 0 && data.details.pass == true) {
         message   += "found variable syntax errors; Valid syntax compiled successfully."
       }
-      else if(data.variables.length > 0 && data.details.broken.length > 0) {
+      else if((data.variables.length > 0 && data.details.broken.length > 0)) {
         message   += "found plain-text syntax errors, HTML variables only compiled."
       }
       else{
-        message   += "Found no syntax to compile."
+        message   += "Found no syntax to compile. If you're using plain-text, check the syntax."
       }
+      message += " @";
       console.log(message);
+      console.log(data.this);
+    }
+    function returnFunctions(data){
+      return {
+        get: function(key,callback){
+          if(callback !== undefined){
+            stashFind(key,data.variables,function(value){
+              if(value !== undefined){
+                callback(value);
+              }
+              else{
+                stashFindBroken(key,data.details.broken,function(error){
+                  if(error !== undefined)
+                    callback(false,error)
+                  else
+                    callback(false,"No variables with that name");
+                });
+              }
+            });
+          }
+          else{
+            stashFind(key,data.variables,function(value){
+              return value;
+            });
+          }
+        },
+        that: function(){
+          return data.this;
+        }
+      };
     }
     /**
      * Finds the correct variable in the variable list
@@ -195,7 +204,7 @@
         compileHTMLValidate($(node).text(),function(code){
           if(code == true){
             compileHTMLRemove($(node).text(),function(syntaxClean){
-              data.details.found = true;
+              data.details.pass = true;
               data.variables.push({
                 key: variableSlugify(syntaxClean),
                 value: $(node).next().html()
@@ -206,7 +215,7 @@
             });
           }
           else if (code == 2 || code == 3) {
-            // data.details.found = false;
+            // data.details.pass = false;
             compileData.incomplete++;
 
             if($settings.hideBroken == true){
@@ -226,11 +235,10 @@
               });
             }
           }
-          if(i==count){
-            data.error =  compileHTMLError(compileData);
-            callback(data);
-          }
         });
+      }).promise().done(function() {
+        data.error =  compileHTMLError(compileData);
+        callback(data);
       });
     }
     /**
@@ -359,14 +367,17 @@
               });
             });
           }
-          data.details.found = true;
+          data.details.pass = true;
         }
         else if(dataCount.error){
-          data.details.found = false;
+          data.details.pass = false;
           data.error = "Syntax errors found in plain-text, rejecting compiling any plain-text.";
         }
+        else{
+          data.details.pass = data.details.pass;
+        }
         $that.html(textwHTML);
-        callback(!data.details.found,data);
+        callback(!data.details.pass,data);
       });
     }
     /**
@@ -454,16 +465,29 @@
       return variable.replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, '-').toLowerCase();
     }
     /* * * Iterator * * */
-    return $.each(this,function(i,node) {
-      // console.log($(node));
-      build($(this),function(error,data){
+    var now = this;
+    if(now.length > 1){
+      now.each(function() {
+        build($(now),function(error,data){
+          if(error==false) {
+            $settings.onDone(data.functions);
+          }
+          else{
+            $settings.onFail(error);
+          }
+        });
+      });
+    }
+    else{
+      build($(now),function(error,data){
         if(error==false) {
-          $settings.onDone(data.functions);
+          $settings.onDone(data.functions,data.functions.that());
         }
         else{
           $settings.onFail(error);
         }
       });
-    });
+    }
+    return this;
   };
 }(jQuery));

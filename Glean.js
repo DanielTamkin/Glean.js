@@ -468,8 +468,9 @@
     var now = this;
     if(now.length > 1){
       now.each(function() {
-        build($(now),function(error,data){
+        build($(this),function(error,data){
           if(error==false) {
+            console.log(data.variables);
             $settings.onDone(data.functions);
           }
           else{

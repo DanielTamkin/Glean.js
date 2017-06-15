@@ -470,7 +470,6 @@
       now.each(function() {
         build($(this),function(error,data){
           if(error==false) {
-            console.log(data.variables);
             $settings.onDone(data.functions);
           }
           else{
